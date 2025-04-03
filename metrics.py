@@ -13,7 +13,6 @@ class Metrics:
         self.recall=None
         self.normalized_mutual_information=None
         self.silhouette_score=None
-        self.gold_silhouette_score=None
         self.sim_dict=None
     
     def get_precision(self):
@@ -184,8 +183,17 @@ class Metrics:
         '''
         self.calculate_precision_recall(gold_frames=list(gold_frame_dict.keys()), hat_frames=list(hat_frame_dict.keys()))
         self.calculate_article_metrics(gold_frame_article_id_dict=gold_frame_article_id_dict, hat_frame_article_id_dict=hat_frame_article_id_dict)
-        self.silhouette_score=self.calculate_cluster_metrics(frame_seg_dict=hat_frame_dict)     
-        self.gold_silhouette_score = self.calculate_cluster_metrics(frame_seg_dict=gold_frame_dict)  
+        self.silhouette_score=self.calculate_cluster_metrics(frame_seg_dict=hat_frame_dict)    
+
         
-        # frame level precision, frame level recall, segment level using(article ids) ['precision'], segment level using(article ids)['recall'], hat clusters with segments silhouette_score, gold labels with segments gold_silhouette_score
-        return self.precision, self.recall, self.article_metric_dict['avg']['precision'], self.article_metric_dict['avg']['recall'], self.silhouette_score, self.gold_silhouette_score
+
+        # frame level precision, frame level recall, segment level using(article ids) ['precision'], segment level using(article ids)['recall'], hat clusters with segments silhouette_score
+        #return self.precision, self.recall, self.article_metric_dict['avg']['precision'], self.article_metric_dict['avg']['recall'], self.silhouette_score
+        return {
+                    "frame_level_precision": self.precision, # frame level precision
+                    "frame_level_recall": self.recall, #frame level recall
+                    "segment_level_precision": self.article_metric_dict['avg']['precision'], #segment level using(article ids) precision
+                    "segment_level_recall": self.article_metric_dict['avg']['recall'], # segment level using(article ids) recall
+                    "hat_silhouette_score": self.silhouette_score, #  hat clusters with segments silhouette_score
+                }
+    

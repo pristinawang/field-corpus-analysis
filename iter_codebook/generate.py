@@ -19,20 +19,7 @@ sys.path.append(parent_dir)
 # print("Updated sys.path:")
 # print("\n".join(sys.path))
 from corpora_analysis.goldlabels import get_gold_labels
-# def opeai():
-#     client = OpenAI()
-
-#     completion = client.chat.completions.create(
-#         model="gpt-4o-mini",
-#         messages=[
-#             {"role": "system", "content": "You are a helpful assistant."},
-#             {
-#                 "role": "user",
-#                 "content": "Write a haiku about recursion in programming."
-#             }
-#         ]
-#     )
-#     print(completion.choices[0].message)
+from corpora_analysis.metrics import *
 
 def save_results(func):
     def wrapper(self, *args, **kwargs):  # Accept 'self'
@@ -48,14 +35,14 @@ def save_results(func):
         os.makedirs(dir_path, exist_ok=True)
         
         print(f"Calling {func.__name__}...")
-        self.temp_test='Test:  '+f"Calling {func.__name__}..."
+
         result = func(self, *args, **kwargs)
         assert len(self.codebook) == len(self.codebook_dict), f"Length mismatch: {len(self.codebook)} vs {len(self.codebook_dict)}"
-        code_max_sim_dict=get_max_label_sim(embedding_model=self.embedding_model, labels=list(self.codebook_dict.keys()))
-        save_codes_csv(func_name=func.__name__, iter_num=iter_num, codebook_dict=self.codebook_dict, code_max_sim_dict=code_max_sim_dict,file_full_path=codes_file_name)
+        #code_max_sim_dict=get_max_label_sim(embedding_model=self.embedding_model, labels=list(self.codebook_dict.keys()))
+        save_codes_csv(func_name=func.__name__, iter_num=iter_num, codebook_dict=self.codebook_dict,file_full_path=codes_file_name)
         if self.metrics_bool:
             hat_frame_article_dict=self.get_hat_frame_articleID_dict()
-            metrics_to_csv(func_name=func.__name__, iter_num=iter_num,metrics_bool=self.metrics_bool, embedding_model=self.embedding_model, gold_frame_article_id_dict=self.gold_frame_arid_dict, hat_frame_article_id_dict=hat_frame_article_dict, hat_frame_dict=self.get_frame_segs_dict(self.codebook_dict),gold_frame_dict=self.gold_frame_dict,file_full_path=stats_file_name)
+            metrics_to_csv(func_name=func.__name__, iter_num=iter_num,metrics_bool=self.metrics_bool, embedding_model=self.embedding_model, gold_frame_article_id_dict=self.gold_frame_arid_dict, hat_frame_article_id_dict=hat_frame_article_dict, hat_frame_dict=self.get_frame_segs_dict(self.codebook_dict),gold_frame_dict=self.gold_frame_dict,gold_silhouette_score=self.gold_silhouette_score,file_full_path=stats_file_name)
             
     
         print(f"Finished {func.__name__}")
@@ -69,7 +56,6 @@ class IterCoder:
         '''
         dataset: dict; keys are article ids, vals are articles
         '''
-        self.temp_test='Noneee'
         self.job_id=job_id # job_id is the file name of the output saved
         self.dataset=dataset
         self.embedding_model=embedding_model
@@ -79,7 +65,7 @@ class IterCoder:
         self.seg_low_thresh=seg_low_thresh
         self.num_seg_first_batch=num_seg_first_batch
         self.batch_size=batch_size
-        self.stop_thresh=stop_thresh # determine the threshold for stopping; we stop when the number of labels with only 1 segment is below stop_thresh
+        self.stop_thresh=stop_thresh # determine the threshold for stopping; we stop when the number of labels with only 1 segment is below or equal stop_thresh
         self.update_loop_num=update_loop_num # the number of update loops we run. after that, we only run merge and drop module
         self.article_ids=dataset.keys()
         self.articles=dataset.values()
@@ -115,6 +101,8 @@ class IterCoder:
         self.metrics_bool=metrics_bool
         if self.metrics_bool:
             self.gold_frame_dict, self.gold_frame_arid_dict=get_gold_labels() #self.gold_frame_arid_dict: key is code; value is set of article ids
+            gold_metrics=Metrics(embedding_model=self.embedding_model)
+            self.gold_silhouette_score = gold_metrics.calculate_cluster_metrics(frame_seg_dict=self.gold_frame_dict)
         #self.num_seg_per_article=len(self.articles[0].split(self.delimiter))
     def get_hat_frame_articleID_dict(self):
         '''
@@ -130,15 +118,23 @@ class IterCoder:
             hat_frame_dict[code]=ids
         return hat_frame_dict
             
-    # def call_back_stop(self):
-    #     if self.batch_size > len(self.remaining_seg_ids):
-    #         print('Stopping criteria-> batch size:',self.batch_size,'> # remaining seg:', len(self.remaining_seg_ids))
-    #         return True
-    #     else:
-    #         if self.get_eval_added_num_codes(iter_num=max(self.get_eval_log_keys())) <= self.call_back_thresh:
-    #             print('# Added code is lesser or equal to thresh', '# added code:',self.get_eval_added_num_codes(iter=max(self.get_eval_log_keys())), 'thresh:', self.call_back_thresh)
-    #             return True
-    #         else: return False
+    def stop_condition(self):
+        
+        if self.batch_size > len(self.remaining_seg_ids):
+            print('Stopping criteria-> batch size:',self.batch_size,'> # remaining seg:', len(self.remaining_seg_ids))
+            return True
+        else:
+            count_of_one_seg_labels=self.get_count_of_one_seg_labels()
+            if count_of_one_seg_labels <= self.stop_thresh:
+                print('# Count of labels with only 1 segment is below or equal to stop_thresh', '# Count of 1 seg labels:',count_of_one_seg_labels, 'thresh:', self.stop_thresh)
+                return True
+            else: return False
+    
+    def get_count_of_one_seg_labels(self):
+        count_of_one_seg_labels=0
+        for code, seg_ids in self.codebook_dict.items():
+            if len(seg_ids)<=1: count_of_one_seg_labels+=1
+        return count_of_one_seg_labels
         
     
     def get_eval_added_num_codes(self, iter_num):
@@ -589,8 +585,6 @@ class IterCoder:
         self.codebook=list(self.codebook_dict.keys())
         if verbose: print('Iter:',iter_num,'; Added # Codes:',self.get_eval_added_num_codes(iter_num=iter_num), '; Total # Codes:', self.get_eval_total_num_codes(iter_num=iter_num))
         assert len(self.codebook) == len(self.codebook_dict), f"Length mismatch: {len(self.codebook)} vs {len(self.codebook_dict)}"
-        print('-------#'+str(iter_num)+' Updated Codebook---------')
-        print(self.flatten_dict(dict=self.codebook_dict))
         
     def get_merge_pure_json_old_merge_prompt(self,json_txt):
         """
@@ -703,10 +697,11 @@ class IterCoder:
 
 
         
-    def run(self):
+    def run(self, verbose):
         self.generate_initial_codebook(debug=False)
-        print('----Iter: 0, Og Codebook-------')
-        print(self.flatten_dict(dict=self.codebook_dict))
+        if verbose:
+            print('----Iter: 0, Og Codebook-------')
+            print(self.flatten_dict(dict=self.codebook_dict))
         # self.deduplication(iter_num=0, debug=False)
         # print('----depl log------')
         # print('#'+str(0),self.deduplication_error_log[0])
@@ -714,21 +709,25 @@ class IterCoder:
         # print(self.flatten_dict(dict=self.codebook_dict))
         # print('---------Merge no seg-------------')
         # self.merge(round_log='Round #1', seg_bool=False)
-        print('---------Merge with seg----------')
+        
         self.merge(iter_num=0,debug=False, seg_bool=True, prompt_path='./prompt/merge_prompt_seg.txt')
-        print('----merge log------')
-        print('#'+str(0),self.merge_error_log[0])
-        print('---New Codebook after Merge----')
-        print(self.flatten_dict(dict=self.codebook_dict))
+        if verbose:
+            print('---------Merge with seg----------')
+            print('----merge log------')
+            print('#'+str(0),self.merge_error_log[0])
+            print('---New Codebook after Merge----')
+            print(self.flatten_dict(dict=self.codebook_dict))
         self.drop(iter_num=0)
-        print('------Update Loop Starts----------')
+        if verbose:
+            print('------Update Loop Starts----------')
         for iter_num in self.iteration_progress:
-            if iter_num <= 20:
+            if iter_num <= self.update_loop_num:
                 self.update_codebook(iter_num=iter_num, codebook_bool=False, verbose=True)
-                print('----#'+str(iter_num)+' update log------')
-                print('#'+str(iter_num),self.update_codebook_log[iter_num])
-            # if self.call_back_stop():
-            #     break ## TODO location?
+                if verbose:
+                    print('-------#'+str(iter_num)+' Updated Codebook---------')
+                    print(self.flatten_dict(dict=self.codebook_dict))
+                    print('----#'+str(iter_num)+' update log------')
+                    print('#'+str(iter_num),self.update_codebook_log[iter_num])
             
             # self.deduplication(iter_num=iter_num, debug=False) ## TODO deleting all codes that are the same, not even leaving one
             # print('----#'+str(iter_num)+' depl log------')
@@ -736,18 +735,19 @@ class IterCoder:
             # print('---New Codebook after Dupl----')
             # print(self.flatten_dict(dict=self.codebook_dict))
             self.merge(iter_num=iter_num, debug=False, seg_bool=True, prompt_path='./prompt/merge_prompt_seg.txt')
-            print('----#'+str(iter_num)+' merge log------')
-            print('#'+str(iter_num),self.merge_error_log[iter_num])
-            print('---New Codebook after Merge----')
-            print(self.flatten_dict(dict=self.codebook_dict))
+            if verbose:
+                print('----#'+str(iter_num)+' merge log------')
+                print('#'+str(iter_num),self.merge_error_log[iter_num])
+                print('---New Codebook after Merge----')
+                print(self.flatten_dict(dict=self.codebook_dict))
             self.drop(iter_num=iter_num)
             # self.clean_label_names(iter_num=iter_num, verbose=False)
             # print('----#'+str(iter_num)+' Clean Name log------')
             # print(self.clean_label_log[iter_num])
-            print(self.temp_test)
-            if iter_num > 30: 
+
+            if self.stop_condition(): 
                 print('Iter ended #'+ str(iter_num))
-                break ## TODO location?
+                break 
         print('---> Format error?')
         print(self.format_error_count)
         
@@ -769,8 +769,8 @@ def main():
     print('-------Double Check Input data info----------')
     print('Num of articles:', len(list(article_dict.keys())))
     gold_frame_dict, gold_frame_arid_dict=get_gold_labels()
-    itercoder=IterCoder(job_id=job_id, dataset=all_dataset, embedding_model=embedding_model, num_seg_first_batch=32, batch_size=48, stop_thresh=0, delimiter='.\n\n', metrics_bool=True)
-    itercoder.run()
+    itercoder=IterCoder(job_id=job_id, dataset=all_dataset, embedding_model=embedding_model, num_seg_first_batch=32, batch_size=48, stop_thresh=0, delimiter='.\n\n', update_loop_num=20, metrics_bool=True)
+    itercoder.run(verbose=False)
     
     
 if __name__=='__main__':
