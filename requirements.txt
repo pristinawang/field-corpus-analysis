@@ -1,0 +1,12 @@
+datasets==3.0.1
+evaluate==0.4.3
+matplotlib==3.10.0
+numpy==2.2.3
+openai==1.64.0
+pandas==2.2.3
+scikit_learn==1.6.1
+sentence_transformers==3.2.1
+text_lloom==0.8.2
+torch==2.4.0
+tqdm==4.66.5
+transformers==4.45.2

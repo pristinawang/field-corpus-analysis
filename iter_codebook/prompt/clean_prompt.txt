@@ -1,0 +1,11 @@
+Given the original label, clean the label by removing redundant words(such as, "new frame"), numbers, notations, punctuations, symbols, but don't remove conjunctions(such as, "and") and then provide the cleaned label. Only output the cleaned label name. Nothing else.
+
+Original label will be given like below:
+Label:<label>
+
+Provide the cleaned label given the original label. Provide your answer following the format below
+Ans:<cleaned label>
+
+Now given the original label, provide your answer following the format given above.
+
+Label:

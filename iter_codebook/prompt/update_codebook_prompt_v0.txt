@@ -1,0 +1,11 @@
+Your task is to determine how the following segment portrays an issue from a specific perspective, often emphasizing certain viewpoints while excluding alternative perspectives. This is a key aspect of political communication.
+Analyze the following segment from an article to identify the best frame that should be assigned to this segment given the following codebook. If none of the codes in the codebook can describe the framing of the given segment, assign a new frame to this segment.
+
+Segment will be given like below:
+Segment:<segment text>
+
+Identify the best frame in the current codebook or assign a new frame that best describes the framing of the given segment. Answer should follow the following format: 
+Ans:<existing/new frame assigned to segment>
+
+Now given the existing codebook and the segment below, provide your answer following the format given above.
+Codebook:

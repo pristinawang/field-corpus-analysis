@@ -1,0 +1,3 @@
+conda create -n corp_anal python=3.10.13
+conda activate corp_anal
+pip install -r requirements.txt

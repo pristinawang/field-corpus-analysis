@@ -1,0 +1,10 @@
+Your task is to determine how the following segment portrays an issue from a specific perspective, often emphasizing certain viewpoints while excluding alternative perspectives. This is a key aspect of political communication.
+Analyze the following segment from an article to assign the best low frame that capture the low level framing nuances of the given segment. Directly answer with the name of the frame.
+
+Segment will be given like below:
+Segment:<segment text>
+
+Provide your answers following this output format example below:
+Ans: Cyber Harassment
+
+Now given the segment below, assign the best frame for this segment and provide your answer following the format given above.

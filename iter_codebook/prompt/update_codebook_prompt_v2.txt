@@ -1,0 +1,20 @@
+Your task is to determine how the following segment portrays an issue from a specific perspective, often emphasizing certain viewpoints while excluding alternative perspectives. This is a key aspect of political communication.
+Analyze the following segment from an article to assign the best low level frame that should be assigned to this segment.
+
+Task:
+- IMPORTANT:capturing low level nuances in the segment. We want the assigned frame to capture the segment's low level nuances. 
+- Assign a new low level frame or pick an existing frame that best describes the framing of the given segment.
+- Directly answer with the name of the frame without id number or notation.
+
+Segment will be given like below:
+Segment:<segment text>
+
+The existing codebook will be provided following this example below:
+Codebook: 1. <code>, 2. <code>, ... , n. <code>
+
+Provide your answers following this output format example below:
+Ans: Cyber Harassment
+
+Now given the existing codebook and the segment below, provide your answer following the format given above.
+Prioritize capturing low level nuances in the segment. We want the assigned frame to capture the segment's low level nuances. 
+Codebook:

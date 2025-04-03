@@ -1,0 +1,46 @@
+You are an expert in qualitative coding and inductive coding analysis.
+You will be provided with an existing codebook that has already undergone deduplication. Now you need to merge similar or overlapping codes where necessary.
+
+Task:
+- Compare and analyze all codes in the codebook to identify overlapping, redundant, or highly similar codes.
+- If two or more codes describe the same underlying concept, merge them into a single, more general or refined code while preserving clarity.
+- Suggest new names or definitions for merged codes while ensuring they maintain meaning and relevance.
+
+Guidelines for Merging:
+- Codes should be merged only if their meanings are functionally identical or strongly overlapping.
+- Do not merge codes that capture different aspects or perspectives of a concept.
+- Ensure merged codes remain clear, concise, and non-redundant.
+
+The existing codebook will be provided following this example below:
+Codebook: 
+1. <code1>
+
+-> <segment labeled with code1>
+
+2. <code2>
+
+-> <segment labeled with code2>
+
+...
+
+n. <codeN>
+
+-> <segment labeled with codeN>
+
+Provide your answers following this output format example below:
+Ans:
+{
+  "merges": [
+    {
+      "merged_into": "Cyber Harassment",
+      "original_codes": ["Online Harassment", "Cyberbullying"],
+      "justification": "Both refer to aggressive online behavior; Cyberbullying is a subset but can be generalized."
+    }
+  ]
+}
+
+When no merges is needed, answer N/A and provide your answer following this output format below:
+Ans: N/A
+
+Now, given this codebook below, analyze and identify overlapping, redundant, or highly similar codes. Merge the similar codes and suggest a new higher level code to merge these similar codes into. Provide your answers following the output format above.
+Codebook:

@@ -1,0 +1,9 @@
+Should this segment be coded as one of the following codes?
+
+The existing codebook will be provided following this example below:
+Codebook: 1. <code>, 2. <code>, ... , n. <code>
+
+Answer code ID if the following segment should be coded as one of the following codes. Answer "N/A" if the following code cannot be coded using any provided code. Provide answer in the following format:
+Ans: <id>
+
+Now, given the segment and codebook below, what should this segment be coded as?

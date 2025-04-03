@@ -1,0 +1,610 @@
+doc_id,frames
+1,MAST_Mission_Data_Papers
+2,Biosignature_Detection
+3,Hubble Constant Value
+4,This label indicates that the user is seeking a specific numerical value or a
+5,InformationRequest
+6,This label indicates that the user is seeking information about the capabilities or scope
+7,Comparative_Analysis
+8,This label indicates that the user is seeking a comparison between two specific
+9,Irrelevant
+10,This query is unrelated to astronomy and does not pertain to the evaluation of
+11,Information_Request
+12,This label describes the user's input as a request
+13,Query_Limitation
+14,Information_Request
+15,This label describes the user's input as a request
+16,Discovery_Opportunities
+17,Querying Correlation Between PAH and Optical Emission Line Ratios
+18,This label indicates
+19,Information_Request
+20,This label indicates that the user is requesting specific information about
+21,Querying Correlation Between PAH Line Strengths and Ionized Gas Ratios
+22,Information_Request
+23,This label indicates that the user is requesting specific information
+24,Informational Query - Specific Discovery
+25,This label is used to describe a query that asks for
+26,Humorous/Non-Scientific Inquiry
+27,This label is used to describe a query that
+28,Galaxy Property Inquiry
+29,Querying observational evidence
+30,This label indicates that the user is seeking observational data or evidence related
+31,Information_Request_Summary
+32,"The user is requesting a summary of a specific paper,"
+33,Galaxy Query
+34,This label indicates that the user is asking for a specific
+35,Proximity_Query
+36,Pregunta de Información Básica
+37,Querying Similar Stellar Phenomena
+38,This label describes the user's input as a
+39,Discovery_Request
+40,Atmospheric Chemistry Constraint Query
+41,This label describes a query that aims to understand whether photometry
+42,Informational Query
+43,This label indicates that the user is seeking a definition
+44,Information Request - Literature References
+45,This label indicates that the user is requesting specific references or sources
+46,Information_Request
+47,This label describes the user's input as a request for
+48,Library_Request
+49,Information_Request
+50,This label indicates that the user is requesting information about the
+51,Citation_Information
+52,InformationRequest_SpecificTopic
+53,Request for Specific Author Papers
+54,The user is asking the bot to retrieve a list of
+55,Information_Request
+56,This label indicates that the user is requesting a specific piece
+57,XOPLANET_DISCOVERY
+58,Catalog Query
+59,This label indicates that the user is seeking specific data
+60,Information_Request
+61,This label indicates that the user is requesting specific information (
+62,Energy_Source_Inquiry
+63,Triggering_Mechanisms
+64,Mechanism_Exploration
+65,This label indicates that the user is seeking to understand the
+66,Irrelevant
+67,"This query is not relevant to the literature search bot in the astronomy field,"
+68,Comparative_Astronomy
+69,This label indicates that the user is asking for a comparison between
+70,AccelerationMechanism
+71,This label describes the query type as related to the mechanism or
+72,Request for Software or Tool Information
+73,This label indicates that the user is seeking information about specific
+74,Information_Request_About_Astronomical_Process
+75,The user is requesting information about a
+76,Comparative Analysis
+77,This label indicates that the user is seeking to understand the differences or similarities
+78,Querying Extreme Value in Astronomical Data
+79,This label is used to describe queries that
+80,Request for Recent Literature on Specific Methodology and Instrumentation
+81,This label describes the user's
+82,Querying Observational Data
+83,This label indicates that the user is seeking specific observational data
+84,Requesting Specific Data Values
+85,This label indicates that the user is asking for specific data values
+86,Querying Specific Phenomenon in Astrophysical Context
+87,This label indicates that the user
+88,Querying Specific Phenomenon in Astrophysical Context
+89,This label indicates that the user
+90,Querying Known Astronomical Object Count
+91,This label indicates that the user is asking for
+92,Information_Request
+93,Information_Request
+94,Literature_Request_Specific_Methodology
+95,This label indicates that the user is requesting a specific type
+96,Investigating Astronomical Phenomena
+97,The user is inquiring about the underlying
+98,Authorship Inquiry
+99,This label indicates that the user is inquiring
+100,Definition_Request
+101,InformationRequest_AboutSpecificProgram
+102,This label indicates that the user is requesting information about
+103,InformationRequest_UnderstandingProject
+104,The user is requesting a brief overview or summary of
+105,InformationRequest
+106,This label indicates that the user is requesting a definition or explanation of
+107,Information_Request_HST_Programs
+108,Author Identification
+109,Definition_Request
+110,Querying Data Analysis Techniques
+111,The user is inquiring about specific methods and tools used
+112,Astronomy_Question_Variability
+113,This label indicates that the user's input is a
+114,DistanceQuery_AstronomicalObject
+115,Citation_Request
+116,Variability_Inquiry
+117,Information_Request_Astronomical_Properties
+118,This label describes a query that requests specific
+119,STRUCTURE_QUERY
+120,Information_Request
+121,This label indicates that the user is requesting specific information or data
+122,Querying Formula Conversion
+123,This label indicates that the user is asking for a specific formula
+124,Information_Request
+125,This label indicates that the user is requesting information about
+126,Relationship Query
+127,This label indicates that the user is inquiring about the relationship between two
+128,Querying Specific Data Point
+129,This label indicates that the user is seeking a specific data
+130,Cosmological_Concept_Query
+131,Cosmology Concept Query
+132,This label indicates that the user is inquiring about a
+133,Information_Request_About_Specific_Observation_Technique
+134,This label describes a
+135,Information-seeking-definition
+136,The user is seeking a definition or explanation of a specific astronomical concept
+137,Informational Query - Specific Fact
+138,This label is used to describe queries that ask for specific
+139,Definition_Request
+140,Querying Astronomical Phenomenon Association
+141,This label describes a query that asks
+142,Information_Request
+143,This label indicates that the user is requesting
+144,Specific Object Inquiry
+145,Query_for_Specific_Object
+146,Specific Object Query
+147,Querying Astronomical Phenomenon
+148,Information_Request
+149,This label indicates that the user is requesting information about specific
+150,Information_Request
+151,This label indicates that the user is requesting specific information about
+152,Classification
+153,This label indicates that the user is seeking to understand
+154,Astronomical Object Inquiry
+155,SelfIntroduction
+156,This label indicates that the user is inquiring about the bot's purpose or
+157,Topic_Relevance
+158,Informational_Query
+159,This label indicates that the user is seeking general knowledge
+160,Querying Astronomical Object Structure
+161,The user is inquiring about the specific structure
+162,Math-in-Context
+163,Querying observational methods for specific astronomical parameter measurement
+164,This label indicates that the user is seeking
+165,Distance Measurement Techniques
+166,The user is inquiring about the capabilities and prospects of using the
+167,InformationRequest_SupernovaStructure
+168,The user is requesting information about a specific astronomical
+169,Informational Query
+170,This label indicates that the user
+171,AuthorNameQuery
+172,This
+173,Querying Methodological Limitations
+174,The user is inquiring about the limitations of a
+175,Information Request
+176,This label indicates that the user is
+177,Researcher Inquiry
+178,This label indicates that the user is inquiring about the research focus
+179,AuthorQuery
+180,This
+181,Querying Specific Paper Results
+182,This label indicates that the user is asking for specific results
+183,InformationRequest
+184,This label indicates that the user is requesting specific information about
+185,Mixed-topic-query
+186,Description
+187,Querying Specific Object Types within a Context.
+188,This label indicates that the user is asking
+189,Humorous/Non-Serious Inquiry
+190,The user is asking a well-known humorous
+191,Classification_Question
+192,Information_Request
+193,This label indicates that the user is requesting a specific piece
+194,InformationRequest_JWST_MIRI_Image_Analysis
+195,This label describes a query that
+196,Information_Request
+197,This label indicates that the user is requesting specific information related
+198,PlanetaryDiscoveryQuery
+199,This label indicates that the user is inquiring about the number
+200,Informational Query - General Knowledge
+201,This label is assigned because the user is asking for general
+202,Informational Query
+203,This label indicates that the user is seeking basic information
+204,InitialConversation
+205,Informational Request
+206,This label indicates that the user is requesting a specific
+207,InformationRequest_SpecificObject
+208,InformationRequest_AstronomicalObject
+209,This label indicates that the user is requesting information
+210,Query
+211,This label indicates that the user is inquiring about specific information
+212,InformationRequest_AstronomicalObject
+213,This label indicates that the user is requesting information
+214,Comparative_Luminosity_Query
+215,This label indicates that the user is asking for a comparison
+216,Information_Request
+217,This label indicates that the user is requesting information about a specific
+218,Asking-for-Physical-Explanation
+219,Correlation_Query
+220,Information_Request
+221,Information_Request
+222,This label indicates that the user is requesting information on a
+223,Querying Physical Property
+224,The user is asking for a specific physical property (gas density
+225,Querying Astrophysical Mechanisms
+226,The user is inquiring about the distinction between two
+227,Querying Platform Functionality
+228,This label indicates that the user is inquiring about the platform
+229,Information-seeking question about specific astronomical phenomenon
+230,This label is chosen because the query is asking for
+231,Querying Record or Extreme Value
+232,Querying Specific Research Topic
+233,This label describes a query that is asking for specific research
+234,Querying Specific Observations
+235,This label indicates that the user is searching for specific papers
+236,Information_Request
+237,This label indicates that the user is requesting information about
+238,Information_Request
+239,This label describes the user's query as
+240,Querying Spectral Lines
+241,Information_Request
+242,This label indicates that the user is requesting specific information about
+243,Atmospheric Composition Inquiry
+244,This label indicates that the user is inquiring about the expected atmospheric
+245,Information_Request
+246,This label indicates that the user is requesting information about a
+247,Magnetic Field Sensitivity in Cool Stars
+248,This label describes the query type as a question seeking
+249,ImpactOfExternalEvent
+250,Information_Request_About_Specific_Astronomical_Observation
+251,This label describes
+252,Querying Specific Phenomenon in Literature
+253,The label describes the user's input as
+254,Querying Specific Phenomenon in Astronomical Literature
+255,This label describes a query
+256,Querying Specific Phenomenon in Astronomical Literature
+257,This label describes a query
+258,Querying Specific Phenomenon in Astronomical Literature
+259,This label describes a query
+260,Querying Physical Properties
+261,Querying Symbol or Notation
+262,This label indicates that the user is inquiring about a
+263,Symbol Inquiry
+264,STRUCTURE_QUERY
+265,Metallicity_Tracer_Query
+266,This label indicates that the user is seeking information on a
+267,Querying Key Atmospheric Parameter
+268,Off-Topic
+269,This label indicates that the user's query
+270,Information-seeking
+271,This label indicates that the user is seeking a
+272,Correlation_Query
+273,Querying Correlation Between Galaxy Merger History and Large-Scale Environment
+274,This label describes
+275,Transition Query
+276,This label indicates that the user is asking about a specific transition or phenomenon
+277,Querying Specific Data Point
+278,This label indicates that the user is seeking a specific data
+279,Transition_Query
+280,Transition_Mechanism
+281,Transition_Mechanism_Query
+282,This label describes a query that asks about the known mechanisms
+283,Comparative Planetary Properties
+284,This label indicates that the user is seeking a comparison of specific
+285,Querying Methodology
+286,This label indicates that the user is inquiring about the methodology
+287,Galaxy Evolution Question
+288,This label indicates that the user is inquiring about the process of
+289,Philosophical/Existential
+290,Astrology vs Astronomy
+291,This label is
+292,DefinitionRequest
+293,DefinitionRequest
+294,Boundary_Distinguishing_Question
+295,This label indicates that the user is seeking to understand
+296,Querying Physical Properties
+297,Quasar Property Inquiry
+298,Application of Compressive Sensing Techniques
+299,This label indicates that the user is inquiring about
+300,Type-1/Type-2 AGN Dichotomy Question
+301,This label indicates that
+302,Information_Request
+303,"This label indicates that the user is requesting specific information,"
+304,Retrieval_Algorithms
+305,This label indicates that the user is inquiring about specific machine
+306,InformationRequest_AstronomicalObject
+307,This label describes a query that requests specific information
+308,Exoplanet_Inquiry
+309,Abundance_Query
+310,This label indicates that the user is inquiring about the relationship between
+311,Origin_of_Globular_Cluster_Populations
+312,DATABASE_TECHNOLOGY
+313,Querying Specific Data Point
+314,This label indicates that the user is seeking a specific data
+315,Information_Request
+316,This label indicates that the user is requesting information about a specific
+317,Querying Specific Literature for Methodology or Technique
+318,This label indicates that the user is seeking
+319,Querying Instrument Capabilities for Specific Astronomical Objectives
+320,This label describes the
+321,Querying Specific Data or Band
+322,Molecular Transition Query
+323,FrequencyQuery
+324,FrequencyQuery_Astronomy
+325,FrequencyQuery_Astronomy
+326,Querying Specific Spectral Line Data
+327,This label indicates that the user is asking for specific
+328,FREQUENCY_CONVERSION
+329,Information_Request
+330,This label indicates that the user is requesting a summary
+331,Querying Emission Line Expectations in Dwarf Galaxies
+332,This label describes the user's
+333,Querying Emission Line Expectations in Dwarf Galaxies
+334,This label captures the essence of
+335,Shock Dynamics
+336,Astrophysical Phenomenon Inquiry
+337,The user is inquiring about a specific astroph
+338,Querying Specific Phenomena
+339,InformationRequest_AstronomicalInstrument
+340,The user is requesting information about a specific astronomical
+341,Information-seeking-definition
+342,The user is seeking a definition or explanation of a specific term or
+343,Shock Dynamics
+344,Querying Specific Observational Evidence
+345,This label indicates that the user is searching for specific observational
+346,ResearchRequest_AGNProperties
+347,This label indicates that the user is requesting a list of
+348,Querying Literature on AGN-Host Interaction Effects
+349,This label describes the user's input
+350,Correlation_Search
+351,Literature_Request_AGN_Comparison
+352,Querying Specific Observations
+353,Querying Specific Astronomical Phenomena
+354,This label indicates that the user is
+355,Reionization Constraints
+356,This label indicates that the user is inquiring about the limitations
+357,Querying_dependence_on_cosmological_process
+358,This label describes a query that investigates
+359,Evaluating Parameter Independence in Cosmological Models
+360,This label captures the essence of the query
+361,Energy_Inquiry_Accretion_Flare
+362,Querying Specific Event Data
+363,This label indicates that the user is seeking specific data related
+364,Information_Request
+365,This label indicates that the user is requesting information about
+366,Biographical Inquiry
+367,Historical Terminology Inquiry
+368,Information_Request
+369,This label indicates that the user is requesting specific information about a
+370,Information_Request
+371,This label indicates that the user is requesting information about a
+372,PHASE_STRUCTURE_INQUIRY
+373,Information_Request
+374,Literature Review Request
+375,This label indicates that the user is requesting a
+376,Information_Request
+377,This label indicates that the user is requesting a specific piece
+378,Information_Request
+379,This label indicates that the user is requesting specific information about
+380,Atmospheric Characterization Inquiry
+381,This label indicates that the user is inquiring about the current state
+382,Querying Star Formation Rate Indicators
+383,This label indicates that the user is seeking information
+384,Information_Request
+385,This label indicates that the user is requesting information about the
+386,Training Dataset Inquiry
+387,Information_Request
+388,This label indicates that the user is requesting information or an
+389,Information_Request
+390,This label indicates that the user is requesting information about a
+391,Information_Request_Kriging_Methods
+392,Astronomy Application Inquiry
+393,This label indicates that the user is inquiring about the application of
+394,Atmospheric Characterization
+395,This label indicates that the user is inquiring about the atmospheric properties
+396,Temperature Inquiry - AGN Outflows
+397,This label indicates that the user is inquiring
+398,Atmospheric Characterization
+399,Asking-for-interpretation
+400,Seeking Theoretical Explanation
+401,The user is seeking a theoretical explanation for an observed phenomenon in
+402,Explaining_anomalous_chemical_composition
+403,This label is used to describe queries that
+404,Comparative Effectiveness of AGN Types
+405,This label describes the query as a comparison between two
+406,Explaining_anomalous_result
+407,Explaining_anomalous_result
+408,Explaining_anomalous_result
+409,This label is used to identify queries where the user is
+410,Explaining_anomalous_result
+411,Hypothesis_Generation
+412,This label is assigned because the user is seeking multiple possible explanations
+413,Irrelevant
+414,"This query is unrelated to astronomy and is a request for a culinary recipe,"
+415,Off-topic
+416,This label indicates that the user's query
+417,Off-Topic/Non-Academic Inquiry
+418,Off-Topic/Non-Astronomy Inquiry
+419,This label indicates that the user's input
+420,Frustration or Abandonment
+421,Planetary Information Request
+422,Classification
+423,This label indicates that the user is seeking to classify or
+424,Classification_Question
+425,Exoplanet_characterization
+426,Information_Request_Transit_Lightcurve_Analysis
+427,This label indicates that the user is requesting
+428,Information_Request
+429,This label indicates that the user is requesting specific information on
+430,Querying Literature by Dataset and Topic
+431,This label describes a query that seeks literature related
+432,Querying Specific Dataset Literature
+433,This label indicates that the user is searching for literature related to
+434,Decomposition_Request
+435,Information_Request
+436,This label indicates that the user is requesting a summary or overview of
+437,Information_Request
+438,This label describes the user's input as a request
+439,Discovery-related question
+440,Historical Survey Query
+441,This label indicates that the user is asking for information about a historical
+442,Information_Request
+443,This label describes the user's input as a request for
+444,Information_Request_Supernova_Facts
+445,This label indicates that the user is seeking
+446,Querying Extreme Event
+447,INCOMPLETE_SHOCK
+448,Conversion Request
+449,DistanceQuery
+450,Query_AstronomicalObjectProperty
+451,This label describes the query type as asking for
+452,Questioning Universality
+453,Information Request - Literature Search
+454,This label indicates that the user is requesting a
+455,Definition_Request
+456,Atmospheric Escape Mechanism Inquiry
+457,This label indicates that the user is inquiring about the specific
+458,Classification
+459,This label indicates that the user is seeking to classify the Milky
+460,Querying Methodology for Astronomical Phenomena
+461,This label indicates that the
+462,Specific_Fact_Query
+463,Hypothesis_Generation
+464,Atmospheric Dependence Inquiry
+465,This label describes a query that inquires about the relationship between
+466,Timescale_Inquiry_AGN
+467,Timescale_Inquiry
+468,This label indicates that the
+469,AGN_Luminosity_Relationship
+470,Querying Theoretical Possibility
+471,This label describes a query that asks about the theoretical
+472,Correlation Inquiry
+473,This label indicates that the user is inquiring about the relationship between
+474,Galaxy Properties Inquiry
+475,Gas Acquisition Mechanism
+476,Querying Molecular Identification
+477,The user is inquiring about the specific chemical carrier responsible for
+478,Querying Spectral Line Variations
+479,This label indicates that the user is inquiring
+480,Velocity_Query_Gaia_Data
+481,The user is inquiring about specific velocity measurements of
+482,Querying Literature on Specific Topic
+483,This label describes a query that asks for papers related
+484,Querying Evidence for Theoretical Concept
+485,The user is inquiring whether a specific ratio
+486,Information-seeking
+487,This label indicates that the user is seeking specific information
+488,Information_Request_About_Specific_Astronomical_Concept
+489,The user is requesting
+490,Information_Request
+491,This label indicates that the user
+492,Information_Request
+493,This label describes the query
+494,Information_Request_AGN
+495,Comparative_QSO_Characteristics
+496,This label describes a query that compares or contrasts different characteristics
+497,Estimation_Methods
+498,Querying Unknown Phenomenon
+499,Querying_Artifact_Description
+500,The user is asking for a description of a specific
+501,Querying Astronomical Object Identification
+502,The user is asking the bot to identify a
+503,Querying Satellite Galaxy Populations
+504,This label describes a query that inquires about the
+505,Hypothesis-Driven Literature Search
+506,This label indicates that the user is seeking literature
+507,Querying Satellite Galaxy Populations
+508,This label describes a query that asks for a comparison
+509,Definition_Request
+510,Informational Query
+511,This label indicates that the user is seeking a brief
+512,Informational Query
+513,This label indicates that the user is seeking a brief
+514,Definition_Request
+515,Information_Request
+516,This label indicates that the user is requesting specific information about a
+517,InformationRequest_AstronomicalObject
+518,This label indicates that the user is requesting information
+519,Stellar Object Query
+520,Astronomy Object Identification
+521,This label indicates that the user is asking for the identification of a
+522,Irrelevant
+523,"The query is not related to astronomy, but rather to horticulture or"
+524,Comparison_of_Theoretical_Models
+525,This label describes a query that compares and contrasts
+526,Information_Request
+527,This label indicates that the user is requesting specific information related
+528,Galaxy Identification
+529,Object Identification
+530,Galaxy Identification
+531,Galaxy Structure Inquiry
+532,This label indicates that the user is inquiring about the internal structure
+533,DiscoveryMethod
+534,ResearchRequest_AstronomicalObject
+535,InformationRequest_PapersOnTopic
+536,This label describes the user's input as a request
+537,InformationRequest_Citation
+538,This label indicates that the user is requesting a list
+539,IDENTIFYING_FEATURES
+540,Definition-seeking
+541,Definition-seeking
+542,This label indicates that the user is seeking a definition or specific
+543,Informational Query
+544,This label indicates that the user is seeking a definition or
+545,Informational Query
+546,This label indicates that the user is seeking a definition or
+547,Information_Request
+548,This label indicates that the user is in
+549,Hypothetical Scenario Inquiry
+550,This label describes a query that asks about the outcome of
+551,Geology Misconception
+552,The query contains a misconception about the composition of rocky planets
+553,Explaining Astronomical Phenomenon
+554,This label indicates that the user is seeking
+555,Planetary System Query
+556,Definition-seeking
+557,Mass-estimation_query
+558,This label indicates that the user is seeking an estimation of
+559,MATH_CONVERSION
+560,DefinitionRequest
+561,Chemistry-related question in astronomy context (irrelevant to astronomy literature search)
+562,This label indicates that
+563,Informational Query
+564,This label indicates that the user
+565,Numerical Calculation
+566,"This label indicates that the user's input is a mathematical calculation, which"
+567,Supernova_Outcome
+568,Information Request
+569,This label indicates that the user is seeking a specific format
+570,Information-seeking
+571,This label indicates that the user is seeking information on a
+572,Mechanism_Enquiry
+573,Mechanism Inquiry
+574,Classification
+575,This label indicates that the user is seeking
+576,Definition Clarification
+577,This label indicates that the user is seeking a clear definition or distinction
+578,Comparative_Astrophysical_Bodies
+579,Information_Request
+580,This label indicates that the user is requesting specific information (
+581,Querying Specific Method Application
+582,This label describes a query that asks for papers applying a
+583,Query for Specific Research Papers
+584,This label indicates that the user is seeking a list of papers
+585,Querying Literature for Specific Research Topic
+586,This label indicates that the user is searching for
+587,Querying Methodological Limitation
+588,This label indicates that the user is inquiring about
+589,Querying Application of Statistical Methods to Astronomical Models
+590,This label indicates that the user
+591,Irrelevant
+592,Information_Request
+593,This label indicates that the user is requesting information about the system
+594,Information_Request
+595,This label indicates that the user is requesting information about a
+596,Lensing_inquiry
+597,Information_Request_Astronomical_Concept
+598,The label describes the query as a request
+599,Information_Request
+600,This label indicates that the user is requesting information about a specific
+601,Information_Request
+602,This label indicates that the user is requesting specific information or
+603,Measurement_Request
+604,Measurement_Request
+605,Measurement_Request
+606,Querying Astronomical Constants
+607,The user is inquiring about specific measurements related to
+608,Querying Specific Event Type
+609,This label indicates that the user is asking about a specific
