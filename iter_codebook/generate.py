@@ -78,11 +78,11 @@ class IterCoder:
         #     for segment in article.split(splitter_article, 1)[-1].strip().split(self.delimiter)
         # }
         self.segments=[]
-        self.segment_articleID_dict={}
+        self.segment_art_id_dict={}
         for article_id, article in zip(self.article_ids, self.articles):
             for segment in article.split(splitter_article, 1)[-1].strip().split(self.delimiter):
                 self.segments.append(segment)
-                self.segment_articleID_dict[segment]=article_id
+                self.segment_art_id_dict[segment]=article_id
         
         
         self.remaining_seg_ids=list(range(len(self.segments)))
@@ -113,7 +113,7 @@ class IterCoder:
         for code, seg_ids in self.codebook_dict.items():
             ids=set()
             for id in seg_ids:
-                article_id = self.segment_articleID_dict[self.segments[id]]
+                article_id = self.segment_art_id_dict[self.segments[id]]
                 ids.add(article_id)
             hat_frame_dict[code]=ids
         return hat_frame_dict
@@ -763,7 +763,7 @@ def main():
     embedding_model = SentenceTransformer(embedding_model_id).to('cuda')
     
     # Iterative coding
-    article_dict=read_input_segments(info=True, info_exp=False)
+    article_dict=read_input_segments(info=True, info_exp=False) #article_id: dict type; key: article id, value: article text
     small_dataset=dict(list(article_dict.items())[:50])
     all_dataset=dict(list(article_dict.items()))
     print('-------Double Check Input data info----------')
