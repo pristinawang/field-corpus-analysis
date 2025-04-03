@@ -111,13 +111,15 @@ def generate_response_single(prompt):
     )
     return completion.choices[0].message.content
 
-def save_codes_csv(func_name, iter_num, codebook_dict, code_max_sim_dict, file_full_path):
+def save_codes_csv(func_name, iter_num, codebook_dict, file_full_path):
     '''
     iter_num: int
     codes: list of str
     '''
     codes=list(codebook_dict.keys())
-    codes=[code+' {'+code_max_sim_dict[code][0]+', '+str(code_max_sim_dict[code][1])+'}'+' ('+str(len(segs))+')' for code, segs in codebook_dict.items()]
+    #codes=[code+' {'+code_max_sim_dict[code][0]+', '+str(code_max_sim_dict[code][1])+'}'+' ('+str(len(segs))+')' for code, segs in codebook_dict.items()]
+    codes=[code+' ('+str(len(segs))+')' for code, segs in codebook_dict.items()]
+    
     column_name = f"{str(iter_num)}_{func_name}"  # Generate column name
 
     if os.path.exists(file_full_path):  # Check if file exists
@@ -141,12 +143,12 @@ def metrics_to_txt(func_name, iter_num,metrics_bool, embedding_model, gold_frame
             txt=str(func_name)+'_'+str(iter_num)+'; Article metrics: '+str(metrics.article_metric)
             f.write(txt+"\n")  # Writing segment and article ID
 
-def metrics_to_csv(func_name, iter_num,metrics_bool, embedding_model, gold_frame_article_id_dict, hat_frame_article_id_dict, gold_frame_dict, hat_frame_dict, file_full_path):
+def metrics_to_csv(func_name, iter_num,metrics_bool, embedding_model, gold_frame_article_id_dict, hat_frame_article_id_dict, gold_frame_dict, hat_frame_dict, gold_silhouette_score, file_full_path):
     if not(metrics_bool): return
 
     metrics=Metrics(embedding_model=embedding_model)
-    frame_level_precision, frame_level_recall, segment_level_precision, segment_level_recall, hat_silhouette_score, gold_silhouette_score=metrics.calculate_all_metrics(gold_frame_article_id_dict=gold_frame_article_id_dict, hat_frame_article_id_dict=hat_frame_article_id_dict, hat_frame_dict=hat_frame_dict, gold_frame_dict=gold_frame_dict)
-        
+    metrics_dict=metrics.calculate_all_metrics(gold_frame_article_id_dict=gold_frame_article_id_dict, hat_frame_article_id_dict=hat_frame_article_id_dict, hat_frame_dict=hat_frame_dict, gold_frame_dict=gold_frame_dict)
+    
     
 
     # Construct the row ID
@@ -154,11 +156,11 @@ def metrics_to_csv(func_name, iter_num,metrics_bool, embedding_model, gold_frame
 
     # Metrics to log 
     metrics_to_log = {
-        "frame_level_precision": frame_level_precision,
-        "frame_level_recall": frame_level_recall,
-        "segment_level_precision": segment_level_precision,
-        "segment_level_recall": segment_level_recall,
-        "hat_silhouette_score": hat_silhouette_score,
+        "frame_level_precision": metrics_dict["frame_level_precision"],
+        "frame_level_recall": metrics_dict["frame_level_recall"],
+        "segment_level_precision": metrics_dict["segment_level_precision"],
+        "segment_level_recall": metrics_dict["segment_level_recall"],
+        "hat_silhouette_score": metrics_dict["hat_silhouette_score"],
         "gold_silhouette_score": gold_silhouette_score,
     }
 
