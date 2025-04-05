@@ -4,7 +4,8 @@ import pandas as pd
 import torch
 import torch.nn.functional as F
 import sys
-
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # Get the parent directory (where corpora_analysis is located)
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
@@ -221,6 +222,58 @@ def get_max_label_sim(embedding_model, labels, device='cuda', round_decimal=2):
     }
 
     return max_sim_results
+
+def plot_stats(dir_path, csv_path):
+    
+    
+    # Load the CSV into a DataFrame
+    df = pd.read_csv(csv_path)
+    df.set_index('id', inplace=True)
+
+    # Prepare shared x-ticks
+    x_labels = df.index
+    x_pos = range(len(df))
+
+    # Plot and save frame-level precision & recall
+    plt.figure(figsize=(14, 6))
+    ax = df[['frame_level_precision', 'frame_level_recall']].plot(marker='o', ax=plt.gca())
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(x_labels, rotation=45, ha='right')
+    plt.title('Frame-level Precision & Recall')
+    plt.ylabel('Score')
+    plt.xlabel('id')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(os.path.join(dir_path, 'frame_precision_recall.png'))
+    plt.close()
+
+    # Plot and save segment-level precision & recall
+    plt.figure(figsize=(14, 6))
+    ax = df[['segment_level_precision', 'segment_level_recall']].plot(marker='o', ax=plt.gca())
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(x_labels, rotation=45, ha='right')
+    plt.title('Segment-level Precision & Recall')
+    plt.ylabel('Score')
+    plt.xlabel('id')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(os.path.join(dir_path, 'segment_precision_recall.png'))
+    plt.close()
+
+    # Plot and save silhouette scores
+    plt.figure(figsize=(14, 6))
+    ax = df[['hat_silhouette_score', 'gold_silhouette_score']].plot(marker='o', ax=plt.gca())
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(x_labels, rotation=45, ha='right')
+    plt.title('Silhouette Scores (HAT vs Gold)')
+    plt.ylabel('Score')
+    plt.xlabel('id')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(os.path.join(dir_path, 'silhouette_scores.png'))
+    plt.close()
+
+    
 
 
 

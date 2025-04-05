@@ -28,10 +28,14 @@ def save_results(func):
         ## codebook in json
         ## stats in json
         iter_num = kwargs.get("iter_num", 0)
-        dir_path='./out/'+self.job_id+'/'
-        stats_file_name=dir_path+'stats_'+self.job_id+'.csv'
-        codes_file_name=dir_path+'codes_'+self.job_id+'.csv'
-        codebook_file_name=dir_path+'codebook_'+self.job_id+'.json'
+        # dir_path='./out/'+self.job_id+'/'
+        # stats_file_name=dir_path+'stats_'+self.job_id+'.csv'
+        # codes_file_name=dir_path+'codes_'+self.job_id+'.csv'
+        # codebook_file_name=dir_path+'codebook_'+self.job_id+'.json'
+        
+        dir_path = os.path.join(self.output_dir, self.job_id)
+        stats_file_name = os.path.join(dir_path, f'stats_{self.job_id}.csv')
+        codes_file_name = os.path.join(dir_path, f'codes_{self.job_id}.csv')
         os.makedirs(dir_path, exist_ok=True)
         
         print(f"Calling {func.__name__}...")
@@ -52,13 +56,14 @@ def save_results(func):
 
     
 class IterCoder:
-    def __init__(self, job_id, dataset, embedding_model, num_seg_first_batch, batch_size,stop_thresh, update_loop_num, seg_low_thresh=2, drop_freq_thresh=2,random_seed=42, delimiter='\n\n', splitter_article="PRIMARY", metrics_bool=False):
+    def __init__(self, job_id, dataset, embedding_model, num_seg_first_batch, batch_size,stop_thresh, update_loop_num, output_dir, seg_low_thresh=2, drop_freq_thresh=2,random_seed=42, delimiter='\n\n', splitter_article="PRIMARY", metrics_bool=False):
         '''
         dataset: dict; keys are article ids, vals are articles
         '''
         self.job_id=job_id # job_id is the file name of the output saved
         self.dataset=dataset
         self.embedding_model=embedding_model
+        self.output_dir=output_dir
         self.random_seed=random_seed
         random.seed(self.random_seed)
         self.drop_freq_thresh=drop_freq_thresh
@@ -78,11 +83,11 @@ class IterCoder:
         #     for segment in article.split(splitter_article, 1)[-1].strip().split(self.delimiter)
         # }
         self.segments=[]
-        self.segment_articleID_dict={}
+        self.segment_art_id_dict={} # key is segment(str form), value is article id
         for article_id, article in zip(self.article_ids, self.articles):
             for segment in article.split(splitter_article, 1)[-1].strip().split(self.delimiter):
                 self.segments.append(segment)
-                self.segment_articleID_dict[segment]=article_id
+                self.segment_art_id_dict[segment]=article_id
         
         
         self.remaining_seg_ids=list(range(len(self.segments)))
@@ -102,8 +107,58 @@ class IterCoder:
         if self.metrics_bool:
             self.gold_frame_dict, self.gold_frame_arid_dict=get_gold_labels() #self.gold_frame_arid_dict: key is code; value is set of article ids
             gold_metrics=Metrics(embedding_model=self.embedding_model)
-            self.gold_silhouette_score = gold_metrics.calculate_cluster_metrics(frame_seg_dict=self.gold_frame_dict)
+            #self.gold_silhouette_score = gold_metrics.calculate_cluster_metrics(frame_seg_dict=self.gold_frame_dict)
+            self.gold_silhouette_score=-0.005740656
         #self.num_seg_per_article=len(self.articles[0].split(self.delimiter))
+    
+    def output_final_results(self):
+        dir_path = os.path.join(self.output_dir, self.job_id)
+        stats_file_name = os.path.join(dir_path, f'stats_{self.job_id}.csv')
+        
+        plot_stats(dir_path=dir_path, csv_path=stats_file_name)
+        self.output_final_annotations()
+    
+    def output_final_annotations(self):
+        
+        
+        ## Save final annotations
+        ## get a list of article ids that are picked
+        article_ids=set()
+        codes=[]
+        seg_id_ls=[]
+        for code, seg_ids in self.codebook_dict.items():
+            for id in seg_ids:
+                article_id = self.segment_art_id_dict[self.segments[id]]
+                article_ids.add(article_id)
+                codes.append(code)
+                seg_id_ls.append(id)
+        article_ids=list(article_ids)
+        
+        ## get a dict: segment_label_dict: segment(str) is key, value is list of labels
+        segment_label_dict={}
+        for code, seg_id in zip(codes, seg_id_ls):
+            if self.segments[seg_id] in segment_label_dict: segment_label_dict[self.segments[seg_id]].append(code)
+            else: segment_label_dict[self.segments[seg_id]]=[code]
+        
+        ## initialize blank result dict
+        result_dict={}
+        for article_id in article_ids:
+            result_dict[article_id]={"LLM_Annotation":[], "Text":self.dataset[article_id]}
+        
+        # fill in result dict
+        for segment, label_ls in segment_label_dict.items():
+            article_id=self.segment_art_id_dict[segment]
+            result_dict[article_id]["LLM_Annotation"].append({"label":label_ls, "sentence": segment})
+
+        dir_path = os.path.join(self.output_dir, self.job_id)
+        result_file_path = os.path.join(dir_path, f'final_annotation_{self.job_id}.json')
+        os.makedirs(dir_path, exist_ok=True)
+
+        # Write the result_dict to the JSON file
+        with open(result_file_path, 'w', encoding='utf-8') as f:
+            json.dump(result_dict, f, indent=2, ensure_ascii=False)
+        print("🎉 Final annotations has been saved to", result_file_path)
+
     def get_hat_frame_articleID_dict(self):
         '''
         key is code
@@ -113,7 +168,7 @@ class IterCoder:
         for code, seg_ids in self.codebook_dict.items():
             ids=set()
             for id in seg_ids:
-                article_id = self.segment_articleID_dict[self.segments[id]]
+                article_id = self.segment_art_id_dict[self.segments[id]]
                 ids.add(article_id)
             hat_frame_dict[code]=ids
         return hat_frame_dict
@@ -748,6 +803,7 @@ class IterCoder:
             if self.stop_condition(): 
                 print('Iter ended #'+ str(iter_num))
                 break 
+        self.output_final_results()
         print('---> Format error?')
         print(self.format_error_count)
         
@@ -763,13 +819,13 @@ def main():
     embedding_model = SentenceTransformer(embedding_model_id).to('cuda')
     
     # Iterative coding
-    article_dict=read_input_segments(info=True, info_exp=False)
+    article_dict=read_input_segments(info=True, info_exp=False) #article_dict: dict type; key: article id, value: article text
     small_dataset=dict(list(article_dict.items())[:50])
     all_dataset=dict(list(article_dict.items()))
     print('-------Double Check Input data info----------')
     print('Num of articles:', len(list(article_dict.keys())))
     gold_frame_dict, gold_frame_arid_dict=get_gold_labels()
-    itercoder=IterCoder(job_id=job_id, dataset=all_dataset, embedding_model=embedding_model, num_seg_first_batch=32, batch_size=48, stop_thresh=0, delimiter='.\n\n', update_loop_num=20, metrics_bool=True)
+    itercoder=IterCoder(job_id=job_id, dataset=all_dataset, embedding_model=embedding_model, output_dir='./out',num_seg_first_batch=32, batch_size=48, stop_thresh=0, delimiter='.\n\n', update_loop_num=20, metrics_bool=True)
     itercoder.run(verbose=False)
     
     
