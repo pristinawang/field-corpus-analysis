@@ -106,8 +106,13 @@ class Metrics:
                 metrics_dict[hat_frame] = hat_dict
             else:
                 not_in_label_hframes.append(hat_frame)
-        metrics_dict['avg']={'precision': sum(precisions)/len(precisions), 'recall':sum(recalls)/len(recalls)}    
+        if len(precisions)>0: avg_precision=sum(precisions)/len(precisions)
+        else: avg_precision=float('nan')
+        if len(recalls)>0: avg_recall=sum(recalls)/len(recalls)
+        else: avg_recall=float('nan')
+        metrics_dict['avg']={'precision': avg_precision, 'recall': avg_recall}    
         self.article_metric_dict = metrics_dict
+        
         
     def get_sim_frame(self, gold_frames, hat_frames):
         '''
@@ -183,7 +188,10 @@ class Metrics:
         '''
         self.calculate_precision_recall(gold_frames=list(gold_frame_dict.keys()), hat_frames=list(hat_frame_dict.keys()))
         self.calculate_article_metrics(gold_frame_article_id_dict=gold_frame_article_id_dict, hat_frame_article_id_dict=hat_frame_article_id_dict)
-        self.silhouette_score=self.calculate_cluster_metrics(frame_seg_dict=hat_frame_dict)    
+        try: self.silhouette_score=self.calculate_cluster_metrics(frame_seg_dict=hat_frame_dict)  
+        except Exception as e:   
+            self.silhouette_score=None
+            print('[ERROR]',e)
 
         
 
