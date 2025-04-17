@@ -45,8 +45,9 @@ def save_results(func):
         #code_max_sim_dict=get_max_label_sim(embedding_model=self.embedding_model, labels=list(self.codebook_dict.keys()))
         save_codes_csv(func_name=func.__name__, iter_num=iter_num, codebook_dict=self.codebook_dict,file_full_path=codes_file_name)
         if self.metrics_bool:
-            hat_frame_article_dict=self.get_hat_frame_articleID_dict()
-            metrics_to_csv(func_name=func.__name__, iter_num=iter_num,metrics_bool=self.metrics_bool, embedding_model=self.embedding_model, gold_frame_article_id_dict=self.gold_frame_arid_dict, hat_frame_article_id_dict=hat_frame_article_dict, hat_frame_dict=self.get_frame_segs_dict(self.codebook_dict),gold_frame_dict=self.gold_frame_dict,gold_silhouette_score=self.gold_silhouette_score,file_full_path=stats_file_name)
+
+            hat_frame_article_dict=self.get_hat_frame_article_id_dict()
+            metrics_to_csv(func_name=func.__name__, iter_num=iter_num,metrics_bool=self.metrics_bool, embedding_model=self.embedding_model, gold_frame_article_id_dict=self.gold_frame_arid_dict, hat_frame_article_id_dict=hat_frame_article_dict, hat_frame_dict=self.get_frame_segs_dict(self.codebook_dict),gold_frame_dict=self.gold_frame_dict,gold_silhouette_score=self.gold_silhouette_score, article_ids_seen=self.article_ids_seen,file_full_path=stats_file_name)
             
     
         print(f"Finished {func.__name__}")
@@ -56,12 +57,14 @@ def save_results(func):
 
     
 class IterCoder:
-    def __init__(self, job_id, dataset, embedding_model, num_seg_first_batch, batch_size,stop_thresh, update_loop_num, output_dir, seg_low_thresh=2, drop_freq_thresh=2,random_seed=42, delimiter='\n\n', splitter_article="PRIMARY", metrics_bool=False):
+    def __init__(self, job_id, dataset, gold_frame_dict, gold_frame_arid_dict, embedding_model, num_seg_first_batch, batch_size,stop_thresh, output_dir, update_gold_thresh, seg_low_thresh=2, drop_freq_thresh=2,random_seed=42, delimiter='\n\n', splitter_article="PRIMARY", metrics_bool=False):
         '''
         dataset: dict; keys are article ids, vals are articles
         '''
         self.job_id=job_id # job_id is the file name of the output saved
         self.dataset=dataset
+        self.gold_frame_dict=gold_frame_dict
+        self.gold_frame_arid_dict=gold_frame_arid_dict
         self.embedding_model=embedding_model
         self.output_dir=output_dir
         self.random_seed=random_seed
@@ -71,7 +74,8 @@ class IterCoder:
         self.num_seg_first_batch=num_seg_first_batch
         self.batch_size=batch_size
         self.stop_thresh=stop_thresh # determine the threshold for stopping; we stop when the number of labels with only 1 segment is below or equal stop_thresh
-        self.update_loop_num=update_loop_num # the number of update loops we run. after that, we only run merge and drop module
+        #self.update_loop_num=update_loop_num # the number of update loops we run. after that, we only run merge and drop module
+        self.update_gold_thresh = update_gold_thresh # the number of minimum number of article the model has to see which is labeled with each gold frame; ex: update_thresh=3 means that the model needs to see at least 3 articles for each gold frame before stopping updating
         self.article_ids=dataset.keys()
         self.articles=dataset.values()
         self.articles_arr=np.array(self.articles)
@@ -105,12 +109,50 @@ class IterCoder:
         self.__eval_log={} #key: iteration(int); value: stats(dict); stats{key:[added num of codes, ended with num of codes]; value:[int,int]}
         self.metrics_bool=metrics_bool
         if self.metrics_bool:
-            self.gold_frame_dict, self.gold_frame_arid_dict=get_gold_labels() #self.gold_frame_arid_dict: key is code; value is set of article ids
+            #self.gold_frame_dict, self.gold_frame_arid_dict=get_gold_labels() #self.gold_frame_arid_dict: key is code; value is set of article ids
             gold_metrics=Metrics(embedding_model=self.embedding_model)
             #self.gold_silhouette_score = gold_metrics.calculate_cluster_metrics(frame_seg_dict=self.gold_frame_dict)
             self.gold_silhouette_score=-0.005740656
         #self.num_seg_per_article=len(self.articles[0].split(self.delimiter))
+        self.article_id_gold_frame_dict = self.get_article_id_gold_frame_dict(self.gold_frame_arid_dict) # key is article id, v is set of gold frames this article has
+        self.gold_frame_tracker={gold_frame : 0 for gold_frame in self.gold_frame_dict.keys()} # key is gold_frame, value is the number of article the model has seen which is labeled with said gold frame
+        self.article_ids_seen=set()
     
+    def updating_condition(self):
+        if self.update_gold_thresh < min(list(self.gold_frame_tracker.values())): 
+            print('Done updating:', gold_frame_tracker)
+            return False
+        else: return True
+    
+    def update_trackers(self, segments):
+        for segment in segments:
+            article_id = self.segment_art_id_dict[segment]
+            self.article_ids_seen.add(article_id)
+            gold_frames = list(self.article_id_gold_frame_dict[article_id])
+            # self.segment_art_id_dict# key is segment(str form), value is article id
+            # self.article_id_gold_frame_dict  # key is article id, v is set of gold frames this article has
+            for gold_frame in gold_frames:
+                self.gold_frame_tracker[gold_frame]+=1
+    
+    def get_article_id_gold_frame_dict(self, gold_frame_arid_dict):
+        article_id_gold_frame_dict={}
+        art=set()
+        for gold_frame, article_ids in gold_frame_arid_dict.items():
+            art.update(list(article_ids))
+            article_ids = list(article_ids)
+            for article_id in article_ids:
+                if article_id in article_id_gold_frame_dict: article_id_gold_frame_dict[article_id].add(gold_frame)
+                else: article_id_gold_frame_dict[article_id] = {gold_frame}
+        print('----Check article_id_gold_frame_dict-------')
+        print('Num of articles in article_id_gold_frame_dict', len(article_id_gold_frame_dict))
+        print('Num of articles in gold dicts', len(art))
+        print('check art length', len(self.article_ids), len(self.articles))
+        for i,(k,v) in enumerate(article_id_gold_frame_dict.items()): 
+            print(k,v)
+            if i>4: break
+        #print('Check Tobacco1.0-12186', article_id_gold_frame_dict['Tobacco1.0-12186'])
+        print('----Done Check article_id_gold_frame_dict-------')
+        return article_id_gold_frame_dict
     def output_final_results(self):
         dir_path = os.path.join(self.output_dir, self.job_id)
         stats_file_name = os.path.join(dir_path, f'stats_{self.job_id}.csv')
@@ -159,7 +201,7 @@ class IterCoder:
             json.dump(result_dict, f, indent=2, ensure_ascii=False)
         print("🎉 Final annotations has been saved to", result_file_path)
 
-    def get_hat_frame_articleID_dict(self):
+    def get_hat_frame_article_id_dict(self):
         '''
         key is code
         value is a set of the associated segment's article id
@@ -174,6 +216,7 @@ class IterCoder:
         return hat_frame_dict
             
     def stop_condition(self):
+        if self.updating_condition(): return False
         
         if self.batch_size > len(self.remaining_seg_ids):
             print('Stopping criteria-> batch size:',self.batch_size,'> # remaining seg:', len(self.remaining_seg_ids))
@@ -232,6 +275,8 @@ class IterCoder:
         selecting_ids=np.array(self.remaining_seg_ids[:n])
         self.remaining_seg_ids=self.remaining_seg_ids[n:] 
         selected_segments=list(self.segments_arr[selecting_ids])
+        ## update gold_frame_tracker and add article ids to article_ids_seen
+        self.update_trackers(selected_segments)
         return selected_segments, list(selecting_ids)
     
     def get_frame_segs_dict(self, dict):
@@ -776,7 +821,8 @@ class IterCoder:
         if verbose:
             print('------Update Loop Starts----------')
         for iter_num in self.iteration_progress:
-            if iter_num <= self.update_loop_num:
+            #if iter_num <= self.update_loop_num:
+            if self.updating_condition():
                 self.update_codebook(iter_num=iter_num, codebook_bool=False, verbose=True)
                 if verbose:
                     print('-------#'+str(iter_num)+' Updated Codebook---------')
@@ -819,13 +865,14 @@ def main():
     embedding_model = SentenceTransformer(embedding_model_id).to('cuda')
     
     # Iterative coding
-    article_dict=read_input_segments(info=True, info_exp=False) #article_dict: dict type; key: article id, value: article text
+    #article_dict=read_input_segments(info=True, info_exp=False) #article_dict: dict type; key: article id, value: article text
+    gold_frame_dict, gold_frame_arid_dict, article_dict=get_gold_labels()
+    print(type(gold_frame_dict), type(gold_frame_arid_dict), type(article_dict))
     small_dataset=dict(list(article_dict.items())[:50])
     all_dataset=dict(list(article_dict.items()))
     print('-------Double Check Input data info----------')
     print('Num of articles:', len(list(article_dict.keys())))
-    gold_frame_dict, gold_frame_arid_dict=get_gold_labels()
-    itercoder=IterCoder(job_id=job_id, dataset=all_dataset, embedding_model=embedding_model, output_dir='./out',num_seg_first_batch=32, batch_size=48, stop_thresh=0, delimiter='.\n\n', update_loop_num=20, metrics_bool=True)
+    itercoder=IterCoder(job_id=job_id, dataset=all_dataset, gold_frame_dict=gold_frame_dict, gold_frame_arid_dict=gold_frame_arid_dict,embedding_model=embedding_model, output_dir='./out',num_seg_first_batch=32, batch_size=48, stop_thresh=0, delimiter='.\n\n', update_gold_thresh=3, metrics_bool=True)
     itercoder.run(verbose=False)
     
     

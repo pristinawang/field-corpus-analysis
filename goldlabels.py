@@ -1,6 +1,8 @@
 import json
 def get_gold_labels():
-
+    '''
+    input_segments: return: dict type; key: article id, value: article text
+    '''
     codes=getcodes()
     for k,v in codes.items():
         key=k
@@ -15,12 +17,15 @@ def get_gold_labels():
 
     frame_dict={}
     frame_arid_dict={}
+    article_dict={}
     for k,v in codes.items():
         frame_dict[v]=[]
         frame_arid_dict[v]=set() #key is gold_code, value is set of article ids
     paths=['/data/afield6/afield6/moksh/media_frames_corpus/tobacco.json'
         ,'/data/afield6/afield6/moksh/media_frames_corpus/immigration.json'
         ,'/data/afield6/afield6/moksh/media_frames_corpus/samesex.json']
+    art=set()
+    allart=set()
     ## Process files
     # Read the JSON file
     for path in paths:
@@ -38,6 +43,9 @@ def get_gold_labels():
                         segment=segment.replace('\n\n', ' ')
                         frame_dict[frame].append(segment)
                         frame_arid_dict[frame].add(k) # key is code; value is set of article ids
+                        art.add(k)
+                    article_dict[k]=text
+            allart.add(k)
     keys_to_remove=[]
     ## Remove PRIMARY
     for key in frame_dict:
@@ -49,8 +57,8 @@ def get_gold_labels():
     for key in keys_to_remove:
         if key in frame_dict:
             del frame_dict[key]
-        
-    return frame_dict, frame_arid_dict # key is code; value is set of article ids
+    print('All art', len(allart), 'rel art', len(art))  
+    return frame_dict, frame_arid_dict, article_dict # key is code; value is set of article ids
 
 
 

@@ -11,6 +11,7 @@ class Metrics:
         self.embedding_model=embedding_model
         self.precision=None
         self.recall=None
+        self.f1=None
         self.normalized_mutual_information=None
         self.silhouette_score=None
         self.sim_dict=None
@@ -71,11 +72,26 @@ class Metrics:
         assert len(set(labels)) < len(texts), "Error: number of unique labels must be smaller than number of text in texts"
 
         return silhouette_score(texts_embeddings.cpu().numpy(), labels)
-    def calculate_article_metrics(self, gold_frame_article_id_dict, hat_frame_article_id_dict, cos_sim_thresh=0.5):
+    
+    def compute_f1(self, precision, recall):
+        if precision + recall == 0:
+            return 0.0
+        return 2 * precision * recall / (precision + recall)
+
+    def calculate_article_metrics(self, gold_frame_article_id_dict, hat_frame_article_id_dict, article_ids_seen, cos_sim_thresh=0.5):
         # hat_frame_article_id_dict: hat_frame as k and set of article ids as v
         # gold_frame_article_id_dict: k is gold labels and v is set of article ids
         # sim_dict: key is hat frame : value is tuple of (most similar gold frame for key, cos sim score between hat frame and most sim gold frame)
         
+        # Trim gold_frame_article_id_dict to article_ids that have been seen by model
+        new_gold_frame_article_id_dict={ gold_frame : set() for gold_frame in gold_frame_article_id_dict.keys()}
+        for gold_frame, article_ids in gold_frame_article_id_dict.items():
+            for article_id in list(article_ids):
+                if article_id in article_ids_seen:
+                    new_gold_frame_article_id_dict[gold_frame].add(article_id)
+        gold_frame_article_id_dict=new_gold_frame_article_id_dict
+        
+        # Calculate
         if self.sim_dict is None:
             self.sim_dict=self.get_sim_frame(gold_frames=list(gold_frame_article_id_dict.keys()), hat_frames=list(hat_frame_article_id_dict.keys()))
         total_hat=0
@@ -85,6 +101,7 @@ class Metrics:
         not_in_label_hframes=[] # list of not in gold_label hat frames
         precisions=[]
         recalls=[]
+        f1s=[]
         for hat_frame, tup in self.sim_dict.items():
             cos_sim=tup[1]
             gold_frame=tup[0]
@@ -101,8 +118,10 @@ class Metrics:
                 hat_dict['false_negative'] = len(gold_art_ids - hat_art_ids)
                 hat_dict['precision'] = hat_dict['true_positive'] / (hat_dict['true_positive']+hat_dict['false_positive'])
                 hat_dict['recall'] = hat_dict['true_positive'] / (hat_dict['true_positive'] + hat_dict['false_negative'])
+                hat_dict['f1']=self.compute_f1(precision=hat_dict['precision'], recall=hat_dict['recall'])
                 precisions.append(hat_dict['precision'])
                 recalls.append(hat_dict['recall'])
+                f1s.append(hat_dict['f1'])
                 metrics_dict[hat_frame] = hat_dict
             else:
                 not_in_label_hframes.append(hat_frame)
@@ -110,11 +129,13 @@ class Metrics:
         else: avg_precision=float('nan')
         if len(recalls)>0: avg_recall=sum(recalls)/len(recalls)
         else: avg_recall=float('nan')
-        metrics_dict['avg']={'precision': avg_precision, 'recall': avg_recall}    
+        if len(f1s)>0: avg_f1=sum(f1s)/len(f1s)
+        else: avg_f1=float('nan')
+        metrics_dict['avg']={'precision': avg_precision, 'recall': avg_recall, 'f1': avg_f1}    
         self.article_metric_dict = metrics_dict
         
         
-    def get_sim_frame(self, gold_frames, hat_frames):
+    def get_sim_frame(self, gold_frames, hat_frames, reverse=False):
         '''
         input: 
         gold_frames: data type is list, list of gold frames
@@ -133,18 +154,31 @@ class Metrics:
         hat_frames_embeddings = F.normalize(hat_frames_embeddings, p=2, dim=1)
         gold_frames_embeddings = F.normalize(gold_frames_embeddings, p=2, dim=1)
 
-        # Compute cosine similarity between each hat_frame and all gold_frames
-        cos_sim_matrix = torch.matmul(hat_frames_embeddings, gold_frames_embeddings.T)  # Shape: (len(hat_frames), len(gold_frames))
+        if reverse:
+            # Compute cosine similarity between each gold_frame and all hat_frames
+            cos_sim_matrix = torch.matmul(gold_frames_embeddings, hat_frames_embeddings.T)  # Shape: (len(gold_frames), len(hat_frames))
 
-        # Find the most similar gold_frame for each hat_frame
-        sim_dict = {}
-        for i, hat_frame in enumerate(hat_frames):
-            best_match_idx = torch.argmax(cos_sim_matrix[i]).item()
-            most_similar_gold_frame = gold_frames[best_match_idx]
-            cos_sim_score = cos_sim_matrix[i, best_match_idx].item()
-            sim_dict[hat_frame] = (most_similar_gold_frame, cos_sim_score)
+            # Find the most similar hat_frame for each gold_frame
+            sim_dict = {}
+            for i, gold_frame in enumerate(gold_frames):
+                best_match_idx = torch.argmax(cos_sim_matrix[i]).item()
+                most_similar_hat_frame = hat_frames[best_match_idx]
+                cos_sim_score = cos_sim_matrix[i, best_match_idx].item()
+                sim_dict[gold_frame] = (most_similar_hat_frame, cos_sim_score)
+        else:
+            # Compute cosine similarity between each hat_frame and all gold_frames
+            cos_sim_matrix = torch.matmul(hat_frames_embeddings, gold_frames_embeddings.T)  # Shape: (len(hat_frames), len(gold_frames))
+
+            # Find the most similar gold_frame for each hat_frame
+            sim_dict = {}
+            for i, hat_frame in enumerate(hat_frames):
+                best_match_idx = torch.argmax(cos_sim_matrix[i]).item()
+                most_similar_gold_frame = gold_frames[best_match_idx]
+                cos_sim_score = cos_sim_matrix[i, best_match_idx].item()
+                sim_dict[hat_frame] = (most_similar_gold_frame, cos_sim_score)
+                
         return sim_dict
-
+    
     def calculate_precision_recall(self,gold_frames, hat_frames, cos_sim_thresh=0.5):
         '''
         embedding_model: the model use to encode frames/labels to vectors
@@ -154,6 +188,7 @@ class Metrics:
         
         # sim_dict: key is hat frame : value is tuple of (most similar gold frame for key, cos sim score between hat frame and most sim gold frame)
         self.sim_dict=self.get_sim_frame(gold_frames=gold_frames, hat_frames=hat_frames)
+        self.sim_dict_for_gold_frame=self.get_sim_frame(gold_frames=gold_frames, hat_frames=hat_frames, reverse=True)
         
         self.true_positives_dict={}
         self.false_positives=[]
@@ -171,15 +206,19 @@ class Metrics:
             else: self.false_positives.append(hat_frame)
     
 
-        deduplicated_true_positives = set(true_positives)
-        self.false_negatives = set(gold_frames) - deduplicated_true_positives
-        true_positives_num = len(deduplicated_true_positives)
-        false_negatives_num = len(gold_frames) - true_positives_num
-        false_positives_num = len(hat_frames) - len(true_positives)
-        self.precision = true_positives_num / (true_positives_num + false_positives_num)
-        self.recall = true_positives_num / (true_positives_num + false_negatives_num) # same as true_positives_num / len(gold_frames)
+        # deduplicated_true_positives = set(true_positives)
+        # self.false_negatives = set(gold_frames) - deduplicated_true_positives
+        # true_positives_num = len(deduplicated_true_positives)
+        # false_negatives_num = len(gold_frames) - true_positives_num
+        # false_positives_num = len(hat_frames) - len(true_positives)
+        # self.precision = true_positives_num / (true_positives_num + false_positives_num)
+        # self.recall = true_positives_num / (true_positives_num + false_negatives_num) # same as true_positives_num / len(gold_frames)
         
-    def calculate_all_metrics(self, gold_frame_article_id_dict, hat_frame_article_id_dict, hat_frame_dict, gold_frame_dict):
+        self.precision_allow_duplication = len(true_positives) / len(hat_frames)
+        self.precision_unique = set(true_positives) / len(hat_frames)
+
+        
+    def calculate_all_metrics(self, gold_frame_article_id_dict, hat_frame_article_id_dict, hat_frame_dict, gold_frame_dict, article_ids_seen):
         '''
         hat_frame_article_id_dict: hat_frame as k and set of article ids as v
         gold_frame_article_id_dict: k is gold labels and v is set of article ids
@@ -187,7 +226,7 @@ class Metrics:
         hat_frame_dict: k is hat frame, v is a list of segments labeled with this hat frame
         '''
         self.calculate_precision_recall(gold_frames=list(gold_frame_dict.keys()), hat_frames=list(hat_frame_dict.keys()))
-        self.calculate_article_metrics(gold_frame_article_id_dict=gold_frame_article_id_dict, hat_frame_article_id_dict=hat_frame_article_id_dict)
+        self.calculate_article_metrics(gold_frame_article_id_dict=gold_frame_article_id_dict, hat_frame_article_id_dict=hat_frame_article_id_dict, article_ids_seen=article_ids_seen)
         try: self.silhouette_score=self.calculate_cluster_metrics(frame_seg_dict=hat_frame_dict)  
         except Exception as e:   
             self.silhouette_score=None
@@ -200,8 +239,10 @@ class Metrics:
         return {
                     "frame_level_precision": self.precision, # frame level precision
                     "frame_level_recall": self.recall, #frame level recall
+                    'frame_level_f1': self.f1,
                     "segment_level_precision": self.article_metric_dict['avg']['precision'], #segment level using(article ids) precision
                     "segment_level_recall": self.article_metric_dict['avg']['recall'], # segment level using(article ids) recall
+                    'segment_level_f1': self.article_metric_dict['avg']['f1'],
                     "hat_silhouette_score": self.silhouette_score, #  hat clusters with segments silhouette_score
                 }
     

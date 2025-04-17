@@ -33,19 +33,25 @@ def run_metrics(embedding_model, file_paths, gold_silhouette_score, gold_frame_a
         extractions=extract(json_path=file_path)   
         hat_frame_dict=extractions['hat_frame_dict']
         hat_frame_article_id_dict=extractions['hat_frame_article_id_dict']
+        article_ids_seen=set()
+        for ar_ids in hat_frame_article_id_dict.values():
+            article_ids_seen.update(ar_ids)
+        print('Seen article ids:', len(article_ids_seen))
         metrics=Metrics(embedding_model=embedding_model)
-        metrics_dict=metrics.calculate_all_metrics(gold_frame_article_id_dict=gold_frame_article_id_dict, hat_frame_article_id_dict=hat_frame_article_id_dict, hat_frame_dict=hat_frame_dict, gold_frame_dict=gold_frame_dict)
+        metrics_dict=metrics.calculate_all_metrics(gold_frame_article_id_dict=gold_frame_article_id_dict, hat_frame_article_id_dict=hat_frame_article_id_dict, hat_frame_dict=hat_frame_dict, gold_frame_dict=gold_frame_dict, article_ids_seen=article_ids_seen)
 
         metrics_to_log = {
             "frame_level_precision": metrics_dict["frame_level_precision"],
             "frame_level_recall": metrics_dict["frame_level_recall"],
+            "frame_level_f1":metrics_dict["frame_level_f1"],
             "segment_level_precision": metrics_dict["segment_level_precision"],
             "segment_level_recall": metrics_dict["segment_level_recall"],
+            "segment_level_f1": metrics_dict["segment_level_f1"],
             "hat_silhouette_score": metrics_dict["hat_silhouette_score"],
             "gold_silhouette_score": gold_silhouette_score,
         }
-        print('File path:', file_path, "frame_level_precision:", metrics_dict["frame_level_precision"], "frame_level_recall:", metrics_dict["frame_level_recall"], "segment_level_precision:", metrics_dict["segment_level_precision"],
-                "segment_level_recall", metrics_dict["segment_level_recall"],"hat_silhouette_score", metrics_dict["hat_silhouette_score"],"gold_silhouette_score", gold_silhouette_score)
+        print('File path:', file_path, "frame_level_precision:", metrics_dict["frame_level_precision"], "frame_level_recall:", metrics_dict["frame_level_recall"],"frame_level_f1:", metrics_dict["frame_level_f1"], "segment_level_precision:", metrics_dict["segment_level_precision"],
+                "segment_level_recall:", metrics_dict["segment_level_recall"],"segment_level_f1:", metrics_dict["segment_level_f1"],"hat_silhouette_score:", metrics_dict["hat_silhouette_score"],"gold_silhouette_score:", gold_silhouette_score)
     
 def main():
     ## Config
@@ -63,7 +69,7 @@ def main():
     
     
     if data=='media':
-        gold_frame_dict, gold_frame_arid_dict=get_gold_labels() #self.gold_frame_arid_dict: key is code; value is set of article ids
+        gold_frame_dict, gold_frame_arid_dict, _=get_gold_labels() #self.gold_frame_arid_dict: key is code; value is set of article ids
         metrics=Metrics(embedding_model=embedding_model)
         #gold_silhouette_score = metrics.calculate_cluster_metrics(frame_seg_dict=gold_frame_dict)
         gold_silhouette_score=-0.005740656

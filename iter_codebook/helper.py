@@ -144,11 +144,11 @@ def metrics_to_txt(func_name, iter_num,metrics_bool, embedding_model, gold_frame
             txt=str(func_name)+'_'+str(iter_num)+'; Article metrics: '+str(metrics.article_metric)
             f.write(txt+"\n")  # Writing segment and article ID
 
-def metrics_to_csv(func_name, iter_num,metrics_bool, embedding_model, gold_frame_article_id_dict, hat_frame_article_id_dict, gold_frame_dict, hat_frame_dict, gold_silhouette_score, file_full_path):
+def metrics_to_csv(func_name, iter_num,metrics_bool, embedding_model, gold_frame_article_id_dict, hat_frame_article_id_dict, gold_frame_dict, hat_frame_dict, gold_silhouette_score, article_ids_seen, file_full_path):
     if not(metrics_bool): return
 
     metrics=Metrics(embedding_model=embedding_model)
-    metrics_dict=metrics.calculate_all_metrics(gold_frame_article_id_dict=gold_frame_article_id_dict, hat_frame_article_id_dict=hat_frame_article_id_dict, hat_frame_dict=hat_frame_dict, gold_frame_dict=gold_frame_dict)
+    metrics_dict=metrics.calculate_all_metrics(gold_frame_article_id_dict=gold_frame_article_id_dict, hat_frame_article_id_dict=hat_frame_article_id_dict, hat_frame_dict=hat_frame_dict, gold_frame_dict=gold_frame_dict, article_ids_seen=article_ids_seen)
     
     
 
@@ -159,8 +159,10 @@ def metrics_to_csv(func_name, iter_num,metrics_bool, embedding_model, gold_frame
     metrics_to_log = {
         "frame_level_precision": metrics_dict["frame_level_precision"],
         "frame_level_recall": metrics_dict["frame_level_recall"],
+        "frame_level_f1": metrics_dict["frame_level_f1"],
         "segment_level_precision": metrics_dict["segment_level_precision"],
         "segment_level_recall": metrics_dict["segment_level_recall"],
+        "segment_level_f1": metrics_dict["segment_level_f1"],
         "hat_silhouette_score": metrics_dict["hat_silhouette_score"],
         "gold_silhouette_score": gold_silhouette_score,
     }
