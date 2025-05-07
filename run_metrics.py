@@ -149,8 +149,9 @@ def main():
     ]
     val_topicgpt = ['/home/mzhong8/data_afield6/oida_results/clustering/values/topicgpt/values_assignment_clustering.json']
     astro_topicgpt = ['/data/afield6/oida_results/clustering/astrobot/topicgpt/astrobot_assignment_clustering.json']
-    topicgpt = True
-    abs_file_paths=astro_topicgpt
+    
+    topicgpt = False
+    abs_file_paths=astro_file_paths
     
     ## Code starts
     # Job id

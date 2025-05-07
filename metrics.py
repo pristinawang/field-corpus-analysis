@@ -106,7 +106,6 @@ class Metrics:
         # hat_frame_article_id_dict: hat_frame as k and set of article ids as v
         # gold_frame_article_id_dict: k is gold labels and v is set of article ids
         # sim_dict: key is hat frame : value is tuple of (most similar gold frame for key, cos sim score between hat frame and most sim gold frame)
-        
         if not all_seen:
             # Trim gold_frame_article_id_dict to article_ids that have been seen by model
             new_gold_frame_article_id_dict={ gold_frame : set() for gold_frame in gold_frame_article_id_dict.keys()}
@@ -298,21 +297,23 @@ class Metrics:
                 }
         if not(label_to_drop in gold_frame_article_id_dict) or not(label_to_drop in gold_frame_dict):
             raise ValueError("label_to_drop is not in dict")
-        del gold_frame_article_id_dict[label_to_drop]
-        del gold_frame_dict[label_to_drop]
-        print(f'🚀 gold label {label_to_drop} has been dropped from gold dicts')
-        
         # sim_dict: key is hat frame : value is tuple of (most similar gold frame for key, cos sim score between hat frame and most sim gold frame)
         sim_dict=self.get_sim_frame(gold_frames=list(gold_frame_dict.keys()), hat_frames=list(hat_frame_dict.keys()))
+        
+        del gold_frame_article_id_dict[label_to_drop]
+        del gold_frame_dict[label_to_drop]
+        print(f'🚀 gold label "{label_to_drop}" has been dropped from gold dicts')
+        
+        
         hat_frames_to_dropped=[]
         for hat_frame, tup in sim_dict.items():
             gold_frame = tup[0]
             sim_score = tup[1]
             if gold_frame==label_to_drop and sim_score>sim_thresh: hat_frames_to_dropped.append(hat_frame)
         for hat_label_to_drop in hat_frames_to_dropped:
-            del hat_frame_article_id_dict[label_to_drop]
+            del hat_frame_article_id_dict[hat_label_to_drop]
             del hat_frame_dict[hat_label_to_drop]
-            print(f'🚀 hat label {hat_label_to_drop} similar to {label_to_drop} has been dropped from hat dicts')
+            print(f'🚀 hat label "{hat_label_to_drop}" similar to "{label_to_drop}" has been dropped from hat dicts')
         return {
                     'gold_frame_dict':gold_frame_dict,
                     'gold_frame_article_id_dict':gold_frame_article_id_dict,
@@ -328,7 +329,6 @@ class Metrics:
         
         precision and recall both allow duplications
         '''
-        
         # sim_dict: key is hat frame : value is tuple of (most similar gold frame for key, cos sim score between hat frame and most sim gold frame)
         self.sim_matrix=self.get_sim_frame(gold_frames=gold_frames, hat_frames=hat_frames, reverse_matrix=True) #reverse_matrix: rows are gold frames
         sim_matrix_thresh = torch.where(self.sim_matrix >= cos_sim_thresh, self.sim_matrix, float('nan'))
@@ -437,7 +437,7 @@ class Metrics:
         hat_frame_article_id_dict  = data_dict['hat_frame_article_id_dict']
         hat_frame_dict = data_dict['hat_frame_dict']
         gold_frame_dict = data_dict['gold_frame_dict']
-
+        
         self.calculate_precision_recall(gold_frames=list(gold_frame_dict.keys()), hat_frames=list(hat_frame_dict.keys()), frame_level_qualitative_result_path=frame_level_qualitative_result_path, info=info_frame)
         self.calculate_article_metrics(gold_frame_article_id_dict=gold_frame_article_id_dict, hat_frame_article_id_dict=hat_frame_article_id_dict, article_ids_seen=article_ids_seen, all_seen=all_seen, output_dir_path=segment_level_qualitative_result_output_dir_path, info=info_seg)
         try: self.silhouette_score=self.calculate_cluster_metrics(frame_seg_dict=hat_frame_dict)  
