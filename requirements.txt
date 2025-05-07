@@ -10,3 +10,4 @@ text_lloom==0.8.2
 torch==2.4.0
 tqdm==4.66.5
 transformers==4.45.2
+seaborn==0.13.2

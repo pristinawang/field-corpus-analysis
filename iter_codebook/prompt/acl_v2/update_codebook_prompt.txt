@@ -1,0 +1,14 @@
+The following text segment is the abstract from an accepted ACL paper. 
+Using inductive coding, we want to explore and understand what is this year's ACL's main theme of LLM reasoning.
+Read this abstract and think about what is the method, angle, approach took to solve LLM reasoning problem.
+Identify the method, approach this paper took to solve LLM reasoning problem and assign a label to the text segment describing this angle the paper took to solve LLM reasoning.
+If it is not related LLM reasoning, label with "None"
+Respond with this label.
+
+Segment will be given like below:
+Segment:<segment text>
+
+Provide your answers following this output format example below:
+Ans: Cyber Harassment
+
+Now given the segment below, assign the best long label for this segment and provide your answer following the format given above.

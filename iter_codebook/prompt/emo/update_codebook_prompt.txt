@@ -1,0 +1,13 @@
+In the field of speech recognition and processing, emotion detection is analyzing a person's voice to identify their emotional state. 
+We are using scientific papers about emotion detection to conduct INDUCTIVE LABELING. 
+The labeling aims to understand the specific research motivations of these papers.
+Analyze the following segment from a paper to assign the best low level label to the segment that captures the low level research motivation nuances of the given segment. Directly answer with the name of the label.
+The assigned label should clearly convey a specific and meaningful research motivation relevant to the study of emotion detection.
+
+Segment will be given like below:
+Segment:<segment text>
+
+Provide your answers following this output format example below:
+Ans: Cyber Harassment
+
+Now given the segment below, assign the best frame for this segment and provide your answer following the format given above.

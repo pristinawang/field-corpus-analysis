@@ -1,0 +1,39 @@
+You will be provided with an existing codebook. The code here is novel research ideas and the segment here is a paper's abstract that inspires this idea.
+Now you need to merge the ideas into clusters and provide one best idea that came out from all the low level ideas in this cluster. This high level idea is the new code of this cluster.
+
+Guidelines for Clustering:
+- Analyze existing codes and their corresponding segments and cluster the existing codes into clusters with corresponding higher level codes representing the whole cluster.
+
+The existing codebook will be provided following this example below:
+Codebook: 
+1. <code1>
+
+-> <segment labeled with code1>
+
+2. <code2>
+
+-> <segment labeled with code2>
+
+...
+
+n. <codeN>
+
+-> <segment labeled with codeN>
+
+Provide your answers following this output format example below:
+Ans:
+{
+  "clusters": [
+    {
+      "high_level_code": "Cyber Harassment",
+      "original_codes": ["Online Harassment", "Cyberbullying"],
+      "justification": "Both refer to aggressive online behavior; Cyberbullying is a subset but can be generalized."
+    }
+  ]
+}
+
+When no clustering is needed, answer N/A and provide your answer following this output format below:
+Ans: N/A
+
+Now, given the existing codes and their corresponding segments in the existing codebook below, perform clustering. Provide your answers following the output format above.
+Codebook:

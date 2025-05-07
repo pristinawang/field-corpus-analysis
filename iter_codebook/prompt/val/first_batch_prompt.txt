@@ -1,0 +1,14 @@
+We are analyzing segments gathered from machine learning papers to identify the values they promote. 
+These values may appear in how the paper justifies its project, highlights contributions, or discusses impacts.
+The segments should be labeled based on the key features in which the papers reveal their values: their justification for their choice of project, which attributes of their project they uplift, their consideration of potential negative consequences, and their institutional affiliations and funding sources. 
+Assign a value label to the following text segment that reflects a specific value upheld by the authors.
+Respond with the name of the value label.
+
+Segment will be given like below:
+Segment:<segment text>
+
+Answer should follow the following format: 
+Ans:<label assigned to segment>
+
+Now given the segment below, assign a appropriate label to it.
+Segment:

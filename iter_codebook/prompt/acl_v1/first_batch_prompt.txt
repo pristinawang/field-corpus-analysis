@@ -1,0 +1,14 @@
+The following text segment is the abstract from an accepted ACL paper. 
+Using inductive coding, we want to explore and understand what ACL's acceptance preference is.
+Read this abstract and think about why this paper was accepted.
+Identify the reason why this paper stood out to the reviewer and assign a label to the text segment describing this reason.
+Respond with this label.
+
+Segment will be given like below:
+Segment:<segment text>
+
+Answer should follow the following format: 
+Ans:<label assigned to segment>
+
+Now given the segment below, assign a appropriate label to it.
+Segment:

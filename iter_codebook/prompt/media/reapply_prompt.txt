@@ -1,0 +1,14 @@
+Your task is to determine how the following segment portrays an issue from a specific perspective, often emphasizing certain viewpoints while excluding alternative perspectives. This is a key aspect of political communication.
+Analyze the following segment from an article to identify the best frame from the codebook that should be assigned to this segment. 
+
+Segment will be given like below:
+Segment:<segment text>
+
+The existing codebook will be provided following this example below:
+Codebook: 1. <code>, 2. <code>, ... , n. <code>
+
+Provide your answers following this output format example below:
+Ans: Cyber Harassment
+
+Now given the existing codebook and the segment below, provide your answer following the format given above.
+Codebook:

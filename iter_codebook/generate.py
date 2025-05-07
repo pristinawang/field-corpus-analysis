@@ -6,9 +6,9 @@ import re, ast
 from datetime import datetime
 import json, os
 from sentence_transformers import SentenceTransformer
-
+from tqdm import tqdm
 import sys
-
+import copy
 
 # Get the parent directory (where corpora_analysis is located)
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
@@ -18,7 +18,7 @@ sys.path.append(parent_dir)
 # Print sys.path to confirm
 # print("Updated sys.path:")
 # print("\n".join(sys.path))
-from corpora_analysis.goldlabels import get_gold_labels
+from corpora_analysis.goldlabels import get_data_and_labels
 from corpora_analysis.metrics import *
 
 def save_results(func):
@@ -57,11 +57,14 @@ def save_results(func):
 
     
 class IterCoder:
-    def __init__(self, job_id, dataset, gold_frame_dict, gold_frame_arid_dict, embedding_model, num_seg_first_batch, batch_size,stop_thresh, output_dir, update_gold_thresh, seg_low_thresh=2, drop_freq_thresh=2,random_seed=42, delimiter='\n\n', splitter_article="PRIMARY", metrics_bool=False):
+    def __init__(self, job_id, data_type, purpose, dataset, gold_frame_dict, gold_frame_arid_dict, embedding_model, num_seg_first_batch, batch_size,stop_thresh,
+                    output_dir, update_gold_thresh, update_num=None, seg_low_thresh=2, drop_freq_thresh=2,random_seed=42, delimiter='\n\n', splitter_article="PRIMARY", metrics_bool=False):
         '''
         dataset: dict; keys are article ids, vals are articles
         '''
         self.job_id=job_id # job_id is the file name of the output saved
+        self.data_type=data_type
+        self.purpose=purpose
         self.dataset=dataset
         self.gold_frame_dict=gold_frame_dict
         self.gold_frame_arid_dict=gold_frame_arid_dict
@@ -74,7 +77,7 @@ class IterCoder:
         self.num_seg_first_batch=num_seg_first_batch
         self.batch_size=batch_size
         self.stop_thresh=stop_thresh # determine the threshold for stopping; we stop when the number of labels with only 1 segment is below or equal stop_thresh
-        #self.update_loop_num=update_loop_num # the number of update loops we run. after that, we only run merge and drop module
+        self.update_num=update_num # the number of update loops we run. after that, we only run merge and drop module
         self.update_gold_thresh = update_gold_thresh # the number of minimum number of article the model has to see which is labeled with each gold frame; ex: update_thresh=3 means that the model needs to see at least 3 articles for each gold frame before stopping updating
         self.article_ids=dataset.keys()
         self.articles=dataset.values()
@@ -88,10 +91,16 @@ class IterCoder:
         # }
         self.segments=[]
         self.segment_art_id_dict={} # key is segment(str form), value is article id
-        for article_id, article in zip(self.article_ids, self.articles):
-            for segment in article.split(splitter_article, 1)[-1].strip().split(self.delimiter):
-                self.segments.append(segment)
-                self.segment_art_id_dict[segment]=article_id
+        if self.data_type=='media':
+            for article_id, article in zip(self.article_ids, self.articles):
+                for segment in article.split(splitter_article, 1)[-1].strip().split(self.delimiter):
+                    self.segments.append(segment)
+                    self.segment_art_id_dict[segment]=article_id
+        elif self.data_type=='astro' or self.data_type=='emo' or self.data_type=='val_e' or self.data_type=='acl':
+            for article_id, article in zip(self.article_ids, self.articles):
+                self.segments.append(article)
+                self.segment_art_id_dict[article]=article_id
+        else: raise ValueError("Data type not supported yet")
         
         
         self.remaining_seg_ids=list(range(len(self.segments)))
@@ -112,15 +121,50 @@ class IterCoder:
             #self.gold_frame_dict, self.gold_frame_arid_dict=get_gold_labels() #self.gold_frame_arid_dict: key is code; value is set of article ids
             gold_metrics=Metrics(embedding_model=self.embedding_model)
             #self.gold_silhouette_score = gold_metrics.calculate_cluster_metrics(frame_seg_dict=self.gold_frame_dict)
-            self.gold_silhouette_score=-0.005740656
+            if self.data_type=='media':self.gold_silhouette_score=-0.005740656
+            elif self.data_type=='astro' or self.data_type=='emo' or self.data_type=='val_e':self.gold_silhouette_score=gold_metrics.calculate_cluster_metrics(frame_seg_dict=self.gold_frame_dict)
+            else: raise ValueError("Data type not supported yet")
+            
         #self.num_seg_per_article=len(self.articles[0].split(self.delimiter))
-        self.article_id_gold_frame_dict = self.get_article_id_gold_frame_dict(self.gold_frame_arid_dict) # key is article id, v is set of gold frames this article has
-        self.gold_frame_tracker={gold_frame : 0 for gold_frame in self.gold_frame_dict.keys()} # key is gold_frame, value is the number of article the model has seen which is labeled with said gold frame
+        if self.purpose!='explore':
+            self.article_id_gold_frame_dict = self.get_article_id_gold_frame_dict(self.gold_frame_arid_dict) # key is article id, v is set of gold frames this article has
+            self.gold_frame_tracker={gold_frame : 0 for gold_frame in self.gold_frame_dict.keys()} # key is gold_frame, value is the number of article the model has seen which is labeled with said gold frame
+            self.reapply_bool=True
+        else: self.reapply_bool=False
         self.article_ids_seen=set()
+        self.full_codebook_dict=None # To track all segments and their respective codes after reapply all codes on remaining segments
+        if self.data_type=='media': self.prompt_dir='./prompt/media'
+        elif self.data_type=='astro': self.prompt_dir='./prompt/astro'
+        elif self.data_type=='emo': self.prompt_dir='./prompt/emo'
+        elif self.data_type=='val_e': self.prompt_dir='./prompt/val'
+        elif self.data_type=='acl': self.prompt_dir='./prompt/acl'
+        else: raise ValueError("Data type not supported yet")
     
-    def updating_condition(self):
-        if self.update_gold_thresh < min(list(self.gold_frame_tracker.values())): 
-            print('Done updating:', gold_frame_tracker)
+    def clustering_system_prompt(self):
+        if self.data_type == "media":
+            goal = "understanding if there exists a generalizable framing dimension to influence us with decisions on policy issues."
+        elif self.data_type == "astro":
+            goal = "understanding the query type to the literature search bot from the astronomy scientists."
+        elif self.data_type == "emo":
+            goal = "understanding the specific research motivations of the given paper about emotion recognition."
+        elif self.data_type == "val_e":
+            goal = "identifying the values of this machine learning research."
+        else:
+            raise ValueError(f"Unknown dataset: {self.data_type}")
+        system_prompt = f"""
+        Synthesize the entire list of labels by clustering similar labels that are inductively labeled. 
+        The clustering is to finalize MEANINGFUL and INSIGHTFUL THEMES for {goal}
+        Output in json format where the key is the cluster, and the value is the list of input labels in that cluster. 
+        For each cluster, the value should only take labels from the user input.
+        """ 
+
+        return system_prompt
+
+    def updating_condition(self, iter_num):
+        if self.update_num is not None:
+            if iter_num<=self.update_num: return True
+            elif self.purpose=='explore': return False
+        elif self.update_gold_thresh < min(list(self.gold_frame_tracker.values())): 
             return False
         else: return True
     
@@ -156,9 +200,58 @@ class IterCoder:
     def output_final_results(self):
         dir_path = os.path.join(self.output_dir, self.job_id)
         stats_file_name = os.path.join(dir_path, f'stats_{self.job_id}.csv')
+        confusion_matrix_path = os.path.join(dir_path, f'frame_cossim_{self.job_id}.png')
+        annotation_file_path = os.path.join(dir_path, f'codebook_annotation_{self.job_id}.json')
+        full_annotation_file_path = os.path.join(dir_path, f'full_annotation_{self.job_id}.json')
         
-        plot_stats(dir_path=dir_path, csv_path=stats_file_name)
-        self.output_final_annotations()
+        self.output_annotations(codebook_to_be_output=self.codebook_dict, dir_path=dir_path, result_file_path=annotation_file_path)
+        if not(self.purpose=='explore'): 
+            plot_stats(dir_path=dir_path, csv_path=stats_file_name)
+            plot_cossim_matrix_frames(image_path=confusion_matrix_path, gold_frames=list(self.gold_frame_dict.keys()), hat_frames=list(self.codebook_dict.keys()), embedding_model=self.embedding_model)
+            hat_frame_article_dict=self.get_hat_frame_article_id_dict()
+            plot_precision_recall_tables(embedding_model=self.embedding_model, gold_frame_article_id_dict=self.gold_frame_arid_dict, hat_frame_article_id_dict=hat_frame_article_dict, article_ids_seen=self.article_ids_seen, output_dir_path=dir_path)
+        if self.reapply_bool: self.output_annotations(codebook_to_be_output=self.full_codebook_dict, dir_path=dir_path, result_file_path=full_annotation_file_path)
+        
+    def output_annotations(self, codebook_to_be_output, dir_path, result_file_path):
+        
+        
+        ## Save final annotations
+        ## get a list of article ids that are picked
+        article_ids=set()
+        codes=[]
+        seg_id_ls=[]
+        for code, seg_ids in codebook_to_be_output.items():
+            for id in seg_ids:
+                article_id = self.segment_art_id_dict[self.segments[id]]
+                article_ids.add(article_id)
+                codes.append(code)
+                seg_id_ls.append(id)
+        article_ids=list(article_ids)
+        
+        ## get a dict: segment_label_dict: segment(str) is key, value is list of labels
+        segment_label_dict={}
+        for code, seg_id in zip(codes, seg_id_ls):
+            if self.segments[seg_id] in segment_label_dict: segment_label_dict[self.segments[seg_id]].append(code)
+            else: segment_label_dict[self.segments[seg_id]]=[code]
+        
+        ## initialize blank result dict
+        result_dict={}
+        for article_id in article_ids:
+            result_dict[article_id]={"LLM_Annotation":[], "Text":self.dataset[article_id]}
+        
+        # fill in result dict
+        for segment, label_ls in segment_label_dict.items():
+            article_id=self.segment_art_id_dict[segment]
+            result_dict[article_id]["LLM_Annotation"].append({"label":label_ls, "sentence": segment})
+
+        # dir_path = os.path.join(self.output_dir, self.job_id)
+        # result_file_path = os.path.join(dir_path, f'final_annotation_{self.job_id}.json')
+        os.makedirs(dir_path, exist_ok=True)
+
+        # Write the result_dict to the JSON file
+        with open(result_file_path, 'w', encoding='utf-8') as f:
+            json.dump(result_dict, f, indent=2, ensure_ascii=False)
+        print("🎉 Final annotations has been saved to", result_file_path)
     
     def output_final_annotations(self):
         
@@ -215,8 +308,8 @@ class IterCoder:
             hat_frame_dict[code]=ids
         return hat_frame_dict
             
-    def stop_condition(self):
-        if self.updating_condition(): return False
+    def stop_condition(self, iter_num):
+        if self.updating_condition(iter_num=iter_num): return False
         
         if self.batch_size > len(self.remaining_seg_ids):
             print('Stopping criteria-> batch size:',self.batch_size,'> # remaining seg:', len(self.remaining_seg_ids))
@@ -276,7 +369,7 @@ class IterCoder:
         self.remaining_seg_ids=self.remaining_seg_ids[n:] 
         selected_segments=list(self.segments_arr[selecting_ids])
         ## update gold_frame_tracker and add article ids to article_ids_seen
-        self.update_trackers(selected_segments)
+        if self.purpose!='explore': self.update_trackers(selected_segments)
         return selected_segments, list(selecting_ids)
     
     def get_frame_segs_dict(self, dict):
@@ -291,7 +384,8 @@ class IterCoder:
         return frame_segs_dict
     
     @save_results
-    def generate_initial_codebook(self, debug, iter_num=0, prompt_path='./prompt/first_batch_prompt.txt'):
+    def generate_initial_codebook(self, debug, iter_num=0, prompt_path='first_batch_prompt.txt'):
+        prompt_path=os.path.join(self.prompt_dir, prompt_path)
         segments, segment_ids =self.get_segments(self.num_seg_first_batch)
         prompt=txt_to_string(prompt_path)
         full_prompts = list(map(lambda s: prompt + s, segments))
@@ -355,13 +449,14 @@ class IterCoder:
             i+=1
         return strr.strip('\n')
 
-    def deduplication(self, iter_num, debug, prompt_path='./prompt/deduplication_prompt.txt'):
+    def deduplication(self, iter_num, debug, prompt_path='deduplication_prompt.txt'):
         '''
         iter_num: int
         It does deduplication and deletion. Cannot separate two since prompt doesn't work.
         Simply delete the codes that are identified as duplications
         recode() after deletion of codes
         '''
+        prompt_path=os.path.join(self.prompt_dir, prompt_path)
         deduplication_log=''
         prompt=txt_to_string(prompt_path)
         full_prompt=prompt+self.flatten(list=self.codebook)
@@ -403,11 +498,12 @@ class IterCoder:
         assert len(self.codebook) == len(self.codebook_dict), f"Length mismatch: {len(self.codebook)} vs {len(self.codebook_dict)}"
         self.deduplication_error_log[iter_num]=deduplication_log
 
-    def recode(self, deduplication_log, seg_ids_deleted, debug, prompt_path='./prompt/recode_prompt.txt'):
+    def recode(self, deduplication_log, seg_ids_deleted, debug, prompt_path='recode_prompt.txt'):
         '''
         Reassign the segments of duplicated codes to the updated codebook
         '''
         ## Maybe batch prompt; each for one answer; Ans: id or N/A
+        prompt_path=os.path.join(self.prompt_dir, prompt_path)
         prompt=txt_to_string(prompt_path)
         codes_deleted_str='\nCodebook:'+self.flatten(list=self.codebook)
         segments=[]
@@ -445,101 +541,101 @@ class IterCoder:
         assert len(self.codebook) == len(self.codebook_dict), f"Length mismatch: {len(self.codebook)} vs {len(self.codebook_dict)}"
         return deduplication_log
 
-    def old_merge(self, debug, round_log, seg_bool, prompt_path='./prompt/merge_prompt.txt'):
-        '''
-        merge() adds new code and original codes' segments but doesn't remove old code to "ensure that no information is lost when a merge choice isn't good"
-        effect is -> one segment can be assigned with multiple codes
-        '''
-        prompt=txt_to_string(prompt_path)
-        if seg_bool:full_prompt=prompt+'\n'+self.flatten_dict(dict=self.codebook_dict)
-        else: full_prompt=prompt+self.flatten(list=self.codebook)
-        if debug:
-            print('----full prompt-----')
-            print(full_prompt)
-        generated_text=generate_response_single(prompt=full_prompt)
-        if debug:
-            print('---Merge gen txt----')
-            print(generated_text)
-        try:
-            json_txt=self.get_pure_ans(text=generated_text)
-            if debug:
-                print('------Pure Ans-------')
-                print(json_txt)
-            merge_dict=self.get_merge_pure_json(json_txt=json_txt)
-            if debug:
-                print('------Pure JSON-------')
-                print(merge_dict)
-        except:
-            self.merge_error_log.append(round_log+': Format error, merge failed at get_pure_ans() or get_merge_pure_json()\n-> Gen txt:\n'+json_txt)
-            return
-        self.merge_error_log.append(round_log+':')
-        for merge in merge_dict['merges']:
-            if merge['merged_into'] in self.codebook_dict:
-                self.merge_error_log[-1] = self.merge_error_log[-1] +' Failure -> new code(merged_into) already exists -> merged into: '+merge['merged_into']
-                continue
-            merged_into=merge['merged_into']
-            og_codes=merge['original_codes']
-            self.merge_error_log[-1] = self.merge_error_log[-1] +'\n merged into: '+merged_into
-            new_seg_ids=[]
-            for og_code in og_codes:
-                if og_code in self.codebook_dict: new_seg_ids=new_seg_ids + self.codebook_dict[og_code]
-            if len(new_seg_ids)>0: 
-                self.codebook_dict[merged_into]=new_seg_ids
-                self.merge_error_log[-1] = self.merge_error_log[-1] + '\n-> Successfully added new code: '+merged_into+'; OG codes(at lease one was added, not sure how many): '+', '.join(og_codes)
-            else: 
-                self.merge_error_log[-1] = self.merge_error_log[-1] + '\n-> Failed to add new code: '+merged_into+'; OG codes(None was added): '+', '.join(og_codes)
-        self.codebook=list(self.codebook_dict.keys())
-        assert len(self.codebook) == len(self.codebook_dict), f"Length mismatch: {len(self.codebook)} vs {len(self.codebook_dict)}"
+    # def old_merge(self, debug, round_log, seg_bool, prompt_path=os.path.join(self.prompt_dir, 'merge_prompt.txt')):
+    #     '''
+    #     merge() adds new code and original codes' segments but doesn't remove old code to "ensure that no information is lost when a merge choice isn't good"
+    #     effect is -> one segment can be assigned with multiple codes
+    #     '''
+    #     prompt=txt_to_string(prompt_path)
+    #     if seg_bool:full_prompt=prompt+'\n'+self.flatten_dict(dict=self.codebook_dict)
+    #     else: full_prompt=prompt+self.flatten(list=self.codebook)
+    #     if debug:
+    #         print('----full prompt-----')
+    #         print(full_prompt)
+    #     generated_text=generate_response_single(prompt=full_prompt)
+    #     if debug:
+    #         print('---Merge gen txt----')
+    #         print(generated_text)
+    #     try:
+    #         json_txt=self.get_pure_ans(text=generated_text)
+    #         if debug:
+    #             print('------Pure Ans-------')
+    #             print(json_txt)
+    #         merge_dict=self.get_merge_pure_json(json_txt=json_txt)
+    #         if debug:
+    #             print('------Pure JSON-------')
+    #             print(merge_dict)
+    #     except:
+    #         self.merge_error_log.append(round_log+': Format error, merge failed at get_pure_ans() or get_merge_pure_json()\n-> Gen txt:\n'+json_txt)
+    #         return
+    #     self.merge_error_log.append(round_log+':')
+    #     for merge in merge_dict['merges']:
+    #         if merge['merged_into'] in self.codebook_dict:
+    #             self.merge_error_log[-1] = self.merge_error_log[-1] +' Failure -> new code(merged_into) already exists -> merged into: '+merge['merged_into']
+    #             continue
+    #         merged_into=merge['merged_into']
+    #         og_codes=merge['original_codes']
+    #         self.merge_error_log[-1] = self.merge_error_log[-1] +'\n merged into: '+merged_into
+    #         new_seg_ids=[]
+    #         for og_code in og_codes:
+    #             if og_code in self.codebook_dict: new_seg_ids=new_seg_ids + self.codebook_dict[og_code]
+    #         if len(new_seg_ids)>0: 
+    #             self.codebook_dict[merged_into]=new_seg_ids
+    #             self.merge_error_log[-1] = self.merge_error_log[-1] + '\n-> Successfully added new code: '+merged_into+'; OG codes(at lease one was added, not sure how many): '+', '.join(og_codes)
+    #         else: 
+    #             self.merge_error_log[-1] = self.merge_error_log[-1] + '\n-> Failed to add new code: '+merged_into+'; OG codes(None was added): '+', '.join(og_codes)
+    #     self.codebook=list(self.codebook_dict.keys())
+    #     assert len(self.codebook) == len(self.codebook_dict), f"Length mismatch: {len(self.codebook)} vs {len(self.codebook_dict)}"
 
-    def merge_merge_prompt(self, debug, round_log, seg_bool, prompt_path='./prompt/merge_prompt_seg.txt'):
-        '''
-        merge() merges original_codes into merged_into
-        old merge function using "merging prompt"
-        '''
-        prompt=txt_to_string(prompt_path)
-        if seg_bool:full_prompt=prompt+'\n'+self.flatten_dict(dict=self.codebook_dict)
-        else: full_prompt=prompt+self.flatten(list=self.codebook)
-        if debug:
-            print('----full prompt-----')
-            print(full_prompt)
-        generated_text=generate_response_single(prompt=full_prompt)
-        if debug:
-            print('---Merge gen txt----')
-            print(generated_text)
-        try:
-            json_txt=self.get_pure_ans(text=generated_text)
-            if debug:
-                print('------Pure Ans-------')
-                print(json_txt)
-            merge_dict=self.get_merge_pure_json(json_txt=json_txt)
-            if debug:
-                print('------Pure JSON-------')
-                print(merge_dict)
-        except:
-            self.merge_error_log.append(round_log+': Format error, merge failed at get_pure_ans() or get_merge_pure_json()\n-> Gen txt:\n'+json_txt)
-            return
-        self.merge_error_log.append(round_log+':')
-        for merge in merge_dict['merges']:
-            if merge['merged_into'] in self.codebook_dict:
-                self.merge_error_log[-1] = self.merge_error_log[-1] +'\n Failure -> new code(merged_into) already exists -> merged into: '+merge['merged_into']
-                continue
-            merged_into=merge['merged_into']
-            og_codes=merge['original_codes']
-            og_codes_existing=[]
-            self.merge_error_log[-1] = self.merge_error_log[-1] +'\n merged into: '+merged_into
-            new_seg_ids=[]
-            for og_code in og_codes:
-                if og_code in self.codebook_dict: 
-                    new_seg_ids=new_seg_ids + self.codebook_dict[og_code]
-                    og_codes_existing.append(og_code)
-            if len(new_seg_ids)>0: 
-                self.codebook_dict[merged_into]=new_seg_ids
-                for og_code_existing in og_codes_existing: del self.codebook_dict[og_code_existing]
-                self.merge_error_log[-1] = self.merge_error_log[-1] + '\n-> Successfully added new code: '+merged_into+'; OG codes(all existing og code in this list have been merged and old code deleted, might not be all): '+', '.join(og_codes_existing)
-            else: 
-                self.merge_error_log[-1] = self.merge_error_log[-1] + '\n-> Failed to add new code: '+merged_into+'; OG codes(None was added): '+', '.join(og_codes)
-        self.codebook=list(self.codebook_dict.keys())
-        assert len(self.codebook) == len(self.codebook_dict), f"Length mismatch: {len(self.codebook)} vs {len(self.codebook_dict)}"
+    # def merge_merge_prompt(self, debug, round_log, seg_bool, prompt_path=os.path.join(self.prompt_dir, 'merge_prompt_seg.txt')):
+    #     '''
+    #     merge() merges original_codes into merged_into
+    #     old merge function using "merging prompt"
+    #     '''
+    #     prompt=txt_to_string(prompt_path)
+    #     if seg_bool:full_prompt=prompt+'\n'+self.flatten_dict(dict=self.codebook_dict)
+    #     else: full_prompt=prompt+self.flatten(list=self.codebook)
+    #     if debug:
+    #         print('----full prompt-----')
+    #         print(full_prompt)
+    #     generated_text=generate_response_single(prompt=full_prompt)
+    #     if debug:
+    #         print('---Merge gen txt----')
+    #         print(generated_text)
+    #     try:
+    #         json_txt=self.get_pure_ans(text=generated_text)
+    #         if debug:
+    #             print('------Pure Ans-------')
+    #             print(json_txt)
+    #         merge_dict=self.get_merge_pure_json(json_txt=json_txt)
+    #         if debug:
+    #             print('------Pure JSON-------')
+    #             print(merge_dict)
+    #     except:
+    #         self.merge_error_log.append(round_log+': Format error, merge failed at get_pure_ans() or get_merge_pure_json()\n-> Gen txt:\n'+json_txt)
+    #         return
+    #     self.merge_error_log.append(round_log+':')
+    #     for merge in merge_dict['merges']:
+    #         if merge['merged_into'] in self.codebook_dict:
+    #             self.merge_error_log[-1] = self.merge_error_log[-1] +'\n Failure -> new code(merged_into) already exists -> merged into: '+merge['merged_into']
+    #             continue
+    #         merged_into=merge['merged_into']
+    #         og_codes=merge['original_codes']
+    #         og_codes_existing=[]
+    #         self.merge_error_log[-1] = self.merge_error_log[-1] +'\n merged into: '+merged_into
+    #         new_seg_ids=[]
+    #         for og_code in og_codes:
+    #             if og_code in self.codebook_dict: 
+    #                 new_seg_ids=new_seg_ids + self.codebook_dict[og_code]
+    #                 og_codes_existing.append(og_code)
+    #         if len(new_seg_ids)>0: 
+    #             self.codebook_dict[merged_into]=new_seg_ids
+    #             for og_code_existing in og_codes_existing: del self.codebook_dict[og_code_existing]
+    #             self.merge_error_log[-1] = self.merge_error_log[-1] + '\n-> Successfully added new code: '+merged_into+'; OG codes(all existing og code in this list have been merged and old code deleted, might not be all): '+', '.join(og_codes_existing)
+    #         else: 
+    #             self.merge_error_log[-1] = self.merge_error_log[-1] + '\n-> Failed to add new code: '+merged_into+'; OG codes(None was added): '+', '.join(og_codes)
+    #     self.codebook=list(self.codebook_dict.keys())
+    #     assert len(self.codebook) == len(self.codebook_dict), f"Length mismatch: {len(self.codebook)} vs {len(self.codebook_dict)}"
 
     @save_results
     def drop(self, iter_num):
@@ -567,11 +663,12 @@ class IterCoder:
         print('Num of codes dropped', len(to_be_dropped))
 
     @save_results
-    def merge(self, debug, iter_num, seg_bool, prompt_path='./prompt/merge_prompt_seg.txt'):
+    def merge(self, debug, iter_num, seg_bool, prompt_path='merge_prompt_seg.txt'):
         '''
         iter_num: int
         merge() clusters original_codes into high_level_code
         '''
+        prompt_path=os.path.join(self.prompt_dir, prompt_path)
         merge_log=''
         prompt=txt_to_string(prompt_path)
         if seg_bool:full_prompt=prompt+'\n'+self.flatten_dict(dict=self.codebook_dict)
@@ -622,37 +719,73 @@ class IterCoder:
         self.codebook=list(self.codebook_dict.keys())
         assert len(self.codebook) == len(self.codebook_dict), f"Length mismatch: {len(self.codebook)} vs {len(self.codebook_dict)}"
 
-    def clean_label_names(self, iter_num, verbose, prompt_path='./prompt/clean_prompt.txt'):
+    # def clean_label_names(self, iter_num, verbose, prompt_path=os.path.join(self.prompt_dir, 'clean_prompt.txt')):
+    #     prompt=txt_to_string(prompt_path)
+    #     old_labels=[]
+    #     log=''
+    #     for code,segment_ids in list(self.codebook_dict.items()):
+            
+            
+    #         # seg_str = '\n\n'.join([self.segments[id] for id in segment_ids])
+    #         # full_prompt=prompt+code+'\n\nText:'+seg_str
+    #         full_prompt=prompt+code
+    #         generated_text=generate_response_single(prompt=full_prompt)
+    #         try:
+    #             label=self.get_pure_ans(text=generated_text)
+    #         except:
+    #             self.clean_label_log[iter_num]="get_pure_ans() RE error, 'Ans:' not found in the string."+"; Text:"+generated_text
+    #             continue
+    #         if not(label in self.codebook_dict):
+    #             self.codebook_dict[label]=segment_ids
+    #             old_labels.append(code)
+    #             log=log+code+' --> '+label+'\n'
+    #     for old_label in old_labels:
+    #         del self.codebook_dict[old_label]
+    #     self.clean_label_log[iter_num]=log
+    #     assert len(self.codebook) == len(self.codebook_dict), f"Length mismatch: {len(self.codebook)} vs {len(self.codebook_dict)}"
+    def reapply(self, prompt_path='reapply_prompt.txt', retry=3):
+        prompt_path=os.path.join(self.prompt_dir, prompt_path)
+        self.full_codebook_dict = copy.deepcopy(self.codebook_dict)
+        normalized_code_mapping = {code.lower() : code  for code in list(self.codebook_dict.keys())}
+        
+        remaining_seg_num =  len(self.remaining_seg_ids)
+        segments, segment_ids = self.get_segments(n=remaining_seg_num)
         prompt=txt_to_string(prompt_path)
-        old_labels=[]
-        log=''
-        for code,segment_ids in list(self.codebook_dict.items()):
-            
-            
-            # seg_str = '\n\n'.join([self.segments[id] for id in segment_ids])
-            # full_prompt=prompt+code+'\n\nText:'+seg_str
-            full_prompt=prompt+code
-            generated_text=generate_response_single(prompt=full_prompt)
-            try:
-                label=self.get_pure_ans(text=generated_text)
-            except:
-                self.clean_label_log[iter_num]="get_pure_ans() RE error, 'Ans:' not found in the string."+"; Text:"+generated_text
-                continue
-            if not(label in self.codebook_dict):
-                self.codebook_dict[label]=segment_ids
-                old_labels.append(code)
-                log=log+code+' --> '+label+'\n'
-        for old_label in old_labels:
-            del self.codebook_dict[old_label]
-        self.clean_label_log[iter_num]=log
-        assert len(self.codebook) == len(self.codebook_dict), f"Length mismatch: {len(self.codebook)} vs {len(self.codebook_dict)}"
-
+        remaining_segs=[]
+        remaining_seg_ids=[]
+        for _ in range(retry):
+            print(f"➡️ Trying {_+1}/{retry}")
+            for i, segment in enumerate(tqdm(segments, desc="Processing segments")):
+                segment_id=segment_ids[i]
+                codebook_str=self.flatten(list=self.codebook)
+                full_prompt=prompt+codebook_str+'\n\nSegment: '+segment
+                generated_text=generate_response_single(prompt=full_prompt)
+                try:
+                    label=self.get_pure_ans(text=generated_text)
+                    label=label.lower()
+                except:
+                    remaining_segs.append(segment)
+                    remaining_seg_ids.append(segment_id)
+                    continue
+                if label not in list(normalized_code_mapping.keys()): 
+                    remaining_segs.append(segment)
+                    remaining_seg_ids.append(segment_id)
+                else:
+                    code = normalized_code_mapping[label]
+                    self.full_codebook_dict[code].append(segment_id)
+            segments=remaining_segs
+            segment_ids=remaining_seg_ids
+            remaining_segs=[]
+            remaining_seg_ids=[]
+        if len(segments)>0: print('⚠️', len(segments),'of segments failed to be assigned labels')
+                
     @save_results 
-    def update_codebook(self, iter_num, codebook_bool, verbose, prompt_path='./prompt/update_codebook_prompt.txt'):
+    def update_codebook(self, iter_num, codebook_bool, verbose, prompt_path='update_codebook_prompt.txt'):
         '''
         iter_num: int
         codebook_bool: including codebook in prompt or not
         '''
+        prompt_path=os.path.join(self.prompt_dir, prompt_path)
         if self.batch_size > len(self.remaining_seg_ids): return
         
         
@@ -810,7 +943,7 @@ class IterCoder:
         # print('---------Merge no seg-------------')
         # self.merge(round_log='Round #1', seg_bool=False)
         
-        self.merge(iter_num=0,debug=False, seg_bool=True, prompt_path='./prompt/merge_prompt_seg.txt')
+        self.merge(iter_num=0,debug=False, seg_bool=True, prompt_path='merge_prompt_seg.txt')
         if verbose:
             print('---------Merge with seg----------')
             print('----merge log------')
@@ -822,7 +955,7 @@ class IterCoder:
             print('------Update Loop Starts----------')
         for iter_num in self.iteration_progress:
             #if iter_num <= self.update_loop_num:
-            if self.updating_condition():
+            if self.updating_condition(iter_num=iter_num):
                 self.update_codebook(iter_num=iter_num, codebook_bool=False, verbose=True)
                 if verbose:
                     print('-------#'+str(iter_num)+' Updated Codebook---------')
@@ -835,7 +968,7 @@ class IterCoder:
             # print('#'+str(iter_num),self.deduplication_error_log[iter_num])
             # print('---New Codebook after Dupl----')
             # print(self.flatten_dict(dict=self.codebook_dict))
-            self.merge(iter_num=iter_num, debug=False, seg_bool=True, prompt_path='./prompt/merge_prompt_seg.txt')
+            self.merge(iter_num=iter_num, debug=False, seg_bool=True, prompt_path='merge_prompt_seg.txt')
             if verbose:
                 print('----#'+str(iter_num)+' merge log------')
                 print('#'+str(iter_num),self.merge_error_log[iter_num])
@@ -846,9 +979,10 @@ class IterCoder:
             # print('----#'+str(iter_num)+' Clean Name log------')
             # print(self.clean_label_log[iter_num])
 
-            if self.stop_condition(): 
+            if self.stop_condition(iter_num=iter_num): 
                 print('Iter ended #'+ str(iter_num))
                 break 
+        if self.reapply_bool: self.reapply()
         self.output_final_results()
         print('---> Format error?')
         print(self.format_error_count)
@@ -864,15 +998,19 @@ def main():
     embedding_model_id='all-MiniLM-L6-v2'
     embedding_model = SentenceTransformer(embedding_model_id).to('cuda')
     
-    # Iterative coding
-    #article_dict=read_input_segments(info=True, info_exp=False) #article_dict: dict type; key: article id, value: article text
-    gold_frame_dict, gold_frame_arid_dict, article_dict=get_gold_labels()
-    print(type(gold_frame_dict), type(gold_frame_arid_dict), type(article_dict))
-    small_dataset=dict(list(article_dict.items())[:50])
+    # Config
+    purpose='explore'
+    metrics_bool=False
+    data_type='acl'
+    
+    # Iterative Coding
+    gold_frame_dict, gold_frame_arid_dict, article_dict=get_data_and_labels(data_type=data_type)
+    small_dataset=dict(list(article_dict.items())[:10])
     all_dataset=dict(list(article_dict.items()))
     print('-------Double Check Input data info----------')
     print('Num of articles:', len(list(article_dict.keys())))
-    itercoder=IterCoder(job_id=job_id, dataset=all_dataset, gold_frame_dict=gold_frame_dict, gold_frame_arid_dict=gold_frame_arid_dict,embedding_model=embedding_model, output_dir='./out',num_seg_first_batch=32, batch_size=48, stop_thresh=0, delimiter='.\n\n', update_gold_thresh=3, metrics_bool=True)
+    itercoder=IterCoder(job_id=job_id, data_type=data_type, purpose=purpose, dataset=all_dataset, gold_frame_dict=gold_frame_dict, gold_frame_arid_dict=gold_frame_arid_dict,embedding_model=embedding_model, output_dir='./out',
+                            num_seg_first_batch=32, batch_size=48, stop_thresh=0, delimiter='.\n\n', update_gold_thresh=3,update_num=10, metrics_bool=metrics_bool)
     itercoder.run(verbose=False)
     
     

@@ -1,0 +1,11 @@
+This is the abstract from a paper. Read this abstract and think of one best follow up novel research idea.
+Assign a long label, description of this novel research idea, to the following text segment.
+Respond with this long label.
+
+Segment will be given like below:
+Segment:<segment text>
+
+Provide your answers following this output format example below:
+Ans: Cyber Harassment
+
+Now given the segment below, assign the best long label for this segment and provide your answer following the format given above.

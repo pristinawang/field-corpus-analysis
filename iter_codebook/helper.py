@@ -71,7 +71,7 @@ def txt_to_string(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         return file.read()
     
-def generate_responses_batch(prompts):
+def generate_responses_batch(prompts, sys_prompt=None):
     """
     Takes a list of prompts and returns a list of generated responses.
     
@@ -84,12 +84,13 @@ def generate_responses_batch(prompts):
     client = OpenAI()
 
     responses = []
+    if sys_prompt is None: sys_prompt="You are a helpful assistant."
     
     for prompt in prompts:
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "system", "content": sys_prompt},
                 {"role": "user", "content": prompt}
             ]
         )
@@ -97,13 +98,14 @@ def generate_responses_batch(prompts):
 
     return responses
 
-def generate_response_single(prompt):
+def generate_response_single(prompt, sys_prompt):
     client = OpenAI()
-
+    if sys_prompt is None: sys_prompt="You are a helpful assistant."
+    
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "system", "content": sys_prompt},
             {
                 "role": "user",
                 "content": prompt
@@ -158,11 +160,11 @@ def metrics_to_csv(func_name, iter_num,metrics_bool, embedding_model, gold_frame
     # Metrics to log 
     metrics_to_log = {
         "frame_level_precision": metrics_dict["frame_level_precision"],
+        #"frame_level_precision_unique": metrics_dict["frame_level_precision_unique"],
         "frame_level_recall": metrics_dict["frame_level_recall"],
-        "frame_level_f1": metrics_dict["frame_level_f1"],
+        #"frame_level_recall_unique": metrics_dict["frame_level_recall_unique"],
         "segment_level_precision": metrics_dict["segment_level_precision"],
         "segment_level_recall": metrics_dict["segment_level_recall"],
-        "segment_level_f1": metrics_dict["segment_level_f1"],
         "hat_silhouette_score": metrics_dict["hat_silhouette_score"],
         "gold_silhouette_score": gold_silhouette_score,
     }
@@ -238,7 +240,20 @@ def plot_stats(dir_path, csv_path):
 
     # Plot and save frame-level precision & recall
     plt.figure(figsize=(14, 6))
-    ax = df[['frame_level_precision', 'frame_level_recall']].plot(marker='o', ax=plt.gca())
+    line_styles = ['o-', 's--', '^-', 'd:'] 
+    # ax = df[['frame_level_precision', 'frame_level_recall']].plot(marker='o', ax=plt.gca())
+    # ax = df[['frame_level_precision_allow_duplication',
+    #             'frame_level_precision_unique',
+    #             'frame_level_recall_multimap',
+    #             'frame_level_recall_unique']].plot(marker='o', ax=plt.gca())
+    columns = [
+        'frame_level_precision',
+        'frame_level_recall'
+    ]
+    ax = plt.gca()
+    for i, col in enumerate(columns):
+        df[col].plot(ax=ax, style=line_styles[i], label=col)
+    ax.legend()
     ax.set_xticks(x_pos)
     ax.set_xticklabels(x_labels, rotation=45, ha='right')
     plt.title('Frame-level Precision & Recall')
@@ -275,7 +290,30 @@ def plot_stats(dir_path, csv_path):
     plt.savefig(os.path.join(dir_path, 'silhouette_scores.png'))
     plt.close()
 
+def plot_cossim_matrix_frames(image_path, gold_frames, hat_frames, embedding_model):
+    metrics=Metrics(embedding_model=embedding_model)
+    metrics.calculate_precision_recall(gold_frames=gold_frames, hat_frames=hat_frames, frame_level_qualitative_result_path=image_path)
     
 
+def plot_precision_recall_tables(embedding_model, gold_frame_article_id_dict, hat_frame_article_id_dict, article_ids_seen, output_dir_path):
+    metrics=Metrics(embedding_model=embedding_model)
+    metrics.calculate_article_metrics(gold_frame_article_id_dict=gold_frame_article_id_dict, hat_frame_article_id_dict=hat_frame_article_id_dict, article_ids_seen=article_ids_seen, output_dir_path=output_dir_path)
+        
 
+def compare_dicts(dict1, dict2):
+    keys1 = set(dict1.keys())
+    keys2 = set(dict2.keys())
 
+    key_diff = {
+        'only_in_dict1': keys1 - keys2,
+        'only_in_dict2': keys2 - keys1
+    }
+
+    shared_keys = keys1 & keys2
+    value_diff = {
+        k: (dict1[k], dict2[k])
+        for k in shared_keys
+        if dict1[k] != dict2[k]
+    }
+
+    return key_diff, value_diff

@@ -1,0 +1,12 @@
+This is the abstract from a paper. Read this abstract and think of one best follow up novel research idea.
+Assign a long label, description of this novel research idea, to the following text segment.
+Respond with this long label.
+
+Segment will be given like below:
+Segment:<segment text>
+
+Answer should follow the following format: 
+Ans:<label assigned to segment>
+
+Now given the segment below, assign a appropriate label to it.
+Segment:

@@ -1,0 +1,16 @@
+In the field of speech recognition and processing, emotion detection is analyzing a person's voice to identify their emotional state. 
+We are using scientific papers about emotion detection to conduct INDUCTIVE LABELING. 
+The labeling aims to understand the specific research motivations of these papers.
+Analyze the following segment from a paper to identify the best label from the codebook that best describes the research motivation of the given segment.
+
+Segment will be given like below:
+Segment:<segment text>
+
+The existing codebook will be provided following this example below:
+Codebook: 1. <code>, 2. <code>, ... , n. <code>
+
+Provide your answers following this output format example below:
+Ans: Cyber Harassment
+
+Now given the existing codebook and the segment below, provide your answer following the format given above.
+Codebook:

@@ -1,0 +1,16 @@
+We are analyzing segments gathered from machine learning papers to identify the values they promote. 
+These values may appear in how the paper justifies its project, highlights contributions, or discusses impacts.
+The segments should be labeled based on the key features in which the papers reveal their values: their justification for their choice of project, which attributes of their project they uplift, their consideration of potential negative consequences, and their institutional affiliations and funding sources. 
+Assign a value label from the codebook to the following text segment that reflects a specific value upheld by the authors.
+
+Segment will be given like below:
+Segment:<segment text>
+
+The existing codebook will be provided following this example below:
+Codebook: 1. <code>, 2. <code>, ... , n. <code>
+
+Provide your answers following this output format example below:
+Ans: Cyber Harassment
+
+Now given the existing codebook and the segment below, provide your answer following the format given above.
+Codebook:
