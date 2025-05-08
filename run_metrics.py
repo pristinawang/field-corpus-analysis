@@ -116,7 +116,7 @@ def run_metrics(embedding_model, file_paths, gold_silhouette_score, gold_frame_a
 def main():
     ## Config
     #data='val_e'
-    data='astro'
+    data='val_e'
     media_file_paths=[
         '/data/afield6/oida_results/clustering/mediacorpus/gpt-4o-mini/base-model_llama/d26dcf98-edd7-11ef-bc0f-7cc25542b4b4.json',
         '/data/afield6/oida_results/clustering/mediacorpus/gpt-4o-mini/base-model_gpt-4o-mini/e3b2c3ce-f45f-11ef-920d-f402709bdab1.json',
@@ -127,7 +127,8 @@ def main():
         '/home/pwang71/pwang71/field/corpora_analysis/iter_codebook/out/20250423222622/full_annotation_20250423222622.json',
         '/home/pwang71/pwang71/field/corpora_analysis/iter_codebook/out/20250423223328/full_annotation_20250423223328.json',
         '/data/afield6/oida_results/clustering/astrobot/gpt-4o-mini/base-model_llama/astrobot_clustering.json',
-        '/data/afield6/oida_results/clustering/astrobot/lloom/astrobot_lloom_clustering.json'
+        '/data/afield6/oida_results/clustering/astrobot/lloom/astrobot_lloom_clustering.json',
+        '/data/afield6/oida_results/clustering/astrobot/topicgpt/astrobot_assignment_clustering.json'
     ]
     emo_file_paths=[
         '/home/pwang71/pwang71/field/corpora_analysis/iter_codebook/out/20250423225107/full_annotation_20250423225107.json',
@@ -144,15 +145,12 @@ def main():
         '/home/mzhong8/data_afield6/oida_results/clustering/values/a1efbbca-284b-11f0-a331-b49691db36ac_reformat/clustering/values/gpt-4o-mini/base-model_llama/a1efbbca-284b-11f0-a331-b49691db36ac_clustering.json',
         '/home/mzhong8/data_afield6/oida_results/clustering/values/a1efbbca-284b-11f0-a331-b49691db36ac_reformat/clustering/values/gpt-4o/base-model_llama/a1efbbca-284b-11f0-a331-b49691db36ac_clustering.json',
         '/home/pwang71/pwang71/field/corpora_analysis/iter_codebook/out/20250424125046/full_annotation_20250424125046.json'
-        # '/home/mzhong8/data_afield6/oida_results/clustering/values/gpt-4o-mini/base-model_llama/values_clustering.json',
-        # '/home/mzhong8/data_afield6/oida_results/clustering/values/topicgpt/values_assignment_clustering.json'
     ]
     val_topicgpt = ['/home/mzhong8/data_afield6/oida_results/clustering/values/topicgpt/values_assignment_clustering.json']
     astro_topicgpt = ['/data/afield6/oida_results/clustering/astrobot/topicgpt/astrobot_assignment_clustering.json']
     
-    topicgpt = False
-    abs_file_paths=astro_file_paths
-    
+    topicgpt = True
+    abs_file_paths=val_topicgpt
     ## Code starts
     # Job id
     now = datetime.now()

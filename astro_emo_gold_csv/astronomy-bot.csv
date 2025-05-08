@@ -43,13 +43,13 @@ thread_ts,full_user_query,Open Coding,FINAL CODE,deep knowledge (including opini
 1716994654,<@U07524ZQSD8> How are the magnetic dynamos of M dwarfs different from the Sun?,knowledge seeking: broad description/common sense,,0.25,0,0.75,0,0,0,0,0,0
 1716994751,<@U07524ZQSD8> What causes cosmic rays to be accelerated in super nova remnants?,knowledge seeking: broad description/common sense,,0.25,0,0.75,0,0,0,0,0,0
 1716994808,<@U07524ZQSD8> Are there open source radiative transfer codes for stellar or planetary atmospheres?,knowledge seeking: procedure,,0,0,0,1,0,0,0,0,0
-1716994810,<@U07524ZQSD8> What is dielectronic recombination and when is it important?,knowledge seeking: broad description,knowledge seeking: broad description,0.5,0,0.5,0,0,0,0,0,0
+1716994810,<@U07524ZQSD8> What is dielectronic recombination and when is it important?,knowledge seeking: broad description/common sense,knowledge seeking: broad description/common sense,0.5,0,0.5,0,0,0,0,0,0
 1716994845,<@U07524ZQSD8> How does SN 1006 differ from other supernova remnants?,deep knowledge (including opinion or speculation),deep knowledge (including opinion or speculation),0.5,0,0.5,0,0,0,0,0,0
 1716994955,<@U07524ZQSD8> What object has the highest spectroscopic redshift?,knowledge seeking: specific factual,,0,0,0,0,1,0,0,0,0
 1716994990,<@U07524ZQSD8> provide three papers in the last year using Integral field spectroscopy of AGN with JWST,bibliometric search: topic,,0,0,0,0,0,1,0,0,0
 1716995069,<@U07524ZQSD8> What are some results using integral field spectroscopy of AGN with JWST?,deep knowledge (including opinion or speculation),,0.5,0,0.25,0,0,0.25,0,0,0
 1716995204,<@U07524ZQSD8> Provide some wavelengths of [Fe II] emission in the near-IR between 1 and 5um.,knowledge seeking: specific factual,,0,0,0,0,1,0,0,0,0
-1716995245,<@U07524ZQSD8> What is the most likely source of [Fe II] in an AGN environment?,knowledge seeing: specific factual,knowledge seeing: specific factual,0.5,0,0,0,0.5,0,0,0,0
+1716995245,<@U07524ZQSD8> What is the most likely source of [Fe II] in an AGN environment?,knowledge seeking: specific factual,knowledge seeking: specific factual,0.5,0,0,0,0.5,0,0,0,0
 1716995348,<@U07524ZQSD8> What is the most likely source of forbidden Fe II in an AGN environment?,deep knowledge (including opinion or speculation),,0.666666667,0,0,0,0.333333333,0,0,0,0
 1716995442,<@U07524ZQSD8> How many supernova remnants are known in M33?,knowledge seeking: specific factual,,0,0,0,0,1,0,0,0,0
 1716995452,<@U07524ZQSD8> What are some recent papers that use COS spectroscopy in their analysis?,bibliometric search: topic,,0,0,0,0,0,1,0,0,0
@@ -62,7 +62,7 @@ thread_ts,full_user_query,Open Coding,FINAL CODE,deep knowledge (including opini
 1716995860,<@U07524ZQSD8> What is CLASSY? I think it’s about HST observations.,knowledge seeking: specific factual,,0,0,0.25,0,0.75,0,0,0,0
 1716995992,<@U07524ZQSD8> What are some legacy programs that have been performed by HST?,knowledge seeking: broad description/common sense,,0,0,0.75,0,0.25,0,0,0,0
 1716996053,<@U07524ZQSD8> What are the most important works by <redacted: name>?,bibliometric search: specific paper or author,,0,0,0,0,0,0,1,0,0
-1716996085,<@U07524ZQSD8> What is spectropolarimetry?,knowledge seeking: broad description,knowledge seeking: broad description,0,0,0.5,0,0.5,0,0,0,0
+1716996085,<@U07524ZQSD8> What is spectropolarimetry?,knowledge seeking: broad description/common sense,knowledge seeking: broad description/common sense,0,0,0.5,0,0.5,0,0,0,0
 1716996162,<@U07524ZQSD8> How do astronomers analyze emission lines in IFU cubes? Are there software packages I should use?,knowledge seeking: procedure,,0,0,0,1,0,0,0,0,0
 1716996244,"<@U07524ZQSD8> Are brown dwarf stars commonly variable in brightness? If so, why?",knowledge seeking: broad description/common sense,,0.25,0,0.5,0,0.25,0,0,0,0
 1716996451,<@U07524ZQSD8> what is the distance to the Small Magellanic Cloud?,knowledge seeking: specific factual,,0,0,0,0,1,0,0,0,0
@@ -77,11 +77,11 @@ thread_ts,full_user_query,Open Coding,FINAL CODE,deep knowledge (including opini
 1716997419,<@U07524ZQSD8> is there a known relationship between Av and Rv?,knowledge seeking: specific factual,,0,0,0.25,0,0.75,0,0,0,0
 1716997567,<@U07524ZQSD8> what is the redshift of the farthest known AGN?,knowledge seeking: specific factual,,0,0,0,0,1,0,0,0,0
 1716997917,<@U07524ZQSD8> what is the hubble tension?,unresolved topic,,0.25,0.5,0.25,0,0,0,0,0,0
-1716997981,<@U07524ZQSD8> what is the sigma-8 tension in cosmology?,knowledge seeking: broad description,knowledge seeking: broad description,0,0.5,0.5,0,0,0,0,0,0
+1716997981,<@U07524ZQSD8> what is the sigma-8 tension in cosmology?,knowledge seeking: broad description/common sense,knowledge seeking: broad description/common sense,0,0.5,0.5,0,0,0,0,0,0
 1716998049,<@U07524ZQSD8> what can we learn from x-ray observations of galaxy clusters?,deep knowledge (including opinion or speculation),,1,0,0,0,0,0,0,0,0
 1716998209,<@U07524ZQSD8> What is superluminal motion in quasars?,knowledge seeking: broad description/common sense,,0,0,0.75,0,0.25,0,0,0,0
 1716998331,<@U07524ZQSD8> what is the closest brown dwarf to the solar system? Answer in the form of a haiku.,stress testing,,0,0,0,0,0.25,0,0,0,0.75
-1716999046,<@U07524ZQSD8> What is a hot subdwarf?,knowledge seeking: broad description,knowledge seeking: broad description,0,0,0.5,0,0.5,0,0,0,0
+1716999046,<@U07524ZQSD8> What is a hot subdwarf?,knowledge seeking: broad description/common sense,knowledge seeking: broad description/common sense,0,0,0.5,0,0.5,0,0,0,0
 1716999113,"<@U07524ZQSD8> Are hot subdwarfs surrounded by nebulae, like planetary nebulae?",knowledge seeking: specific factual,,0,0,0.25,0,0.75,0,0,0,0
 1716999435,<@U07524ZQSD8> Can you please give me an example of a nebula discovered around a hot subdwarf?,knowledge seeking: specific factual,,0,0,0,0,1,0,0,0,0
 1716999491,<@U07524ZQSD8> Can you name a hot subdwarf nebula?,knowledge seeking: specific factual,,0,0,0,0,1,0,0,0,0
@@ -95,7 +95,7 @@ thread_ts,full_user_query,Open Coding,FINAL CODE,deep knowledge (including opini
 1717003786,<@U07524ZQSD8> What are you?,bot capabilities,,0,0,0,0,0,0,0,0.75,0.25
 1717003875,<@U07524ZQSD8> How do you know if a topic relates to astronomy?,bot capabilities,,0,0,0,0,0,0,0,1,0
 1717004053,what is the most common published word?,stress testing,,0,0,0,0,0.25,0,0,0,0.75
-1717004078,what is the structure of the SMC?,knowledge seeking: broad description,knowledge seeking: broad description,0,0,0.5,0,0.5,0,0,0,0
+1717004078,what is the structure of the SMC?,knowledge seeking: broad description/common sense,knowledge seeking: broad description/common sense,0,0,0.5,0,0.5,0,0,0,0
 1717004438,"<@U07524ZQSD8> In the context of astronomy, what is 1+1?",stress testing,stress testing,0,0,0,0,0,0,0,0.5,0.5
 1717005495,<@U07524ZQSD8> How do I measure the dark matter mass of a Local Group dwarf galaxy,knowledge seeking: procedure,,0,0,0,1,0,0,0,0,0
 1717006201,what are prospects for measuring galaxy distances with JWST?,deep knowledge (including opinion or speculation),,1,0,0,0,0,0,0,0,0
@@ -127,7 +127,7 @@ thread_ts,full_user_query,Open Coding,FINAL CODE,deep knowledge (including opini
 1717035151,Is it more luminous than Markarian 573?,knowledge seeking: specific factual,,0,0,0,0,0.75,0,0,0,0.25
 1717037227,<@U07524ZQSD8> What are the different observing modes on the JWST?,knowledge seeking: specific factual,,0,0,0.25,0,0.75,0,0,0,0
 1717067321,"<@U07524ZQSD8> In hydrodynamic simulations, why is V_max (or V_circ) more correlated than the halo mass with galaxy stellar mass?",knowledge seeking: broad description/common sense,,0.25,0,0.5,0,0.25,0,0,0,0
-1717073538,How do dark matter halo spin and shape (like concentration) correlate with the properties of galaxies that occupy them?,knowledge seeking: broad description,knowledge seeking: broad description,0,0,0.5,0,0.5,0,0,0,0
+1717073538,How do dark matter halo spin and shape (like concentration) correlate with the properties of galaxies that occupy them?,knowledge seeking: broad description/common sense,knowledge seeking: broad description/common sense,0,0,0.5,0,0.5,0,0,0,0
 1717082909,<@U07524ZQSD8> can you summarize key results from exoplanet atmospheres posted on astro-ph on the last two weeks?,bibliometric search: topic,,0.25,0,0,0,0,0.75,0,0,0
 1717083228,<@U07524ZQSD8> is there a paper that explains the different forms of planetary atmospheric escape?,bibliometric search: topic,,0,0,0,0,0,1,0,0,0
 1717087553,What is the gas density per unit volume of HI in the Galactic halo?,knowledge seeking: specific factual,,0.25,0,0,0,0.75,0,0,0,0
@@ -153,8 +153,8 @@ thread_ts,full_user_query,Open Coding,FINAL CODE,deep knowledge (including opini
 1717168965,What is the distance to HVCs?,knowledge seeking: specific factual,,0,0,0,0,1,0,0,0,0
 1717169091,Is there a commonly used symbol for the angular size of galactic halo clouds?,knowledge seeking: specific factual,,0,0,0,0.25,0.75,0,0,0,0
 1717169643,What’s the latex symbol for “proportional to”?,bot capabilities,,0,0,0,0.25,0.25,0,0,0.5,0
-1717170554,"What creates linear sturcture in the difffuse, high-latitude, atomic interstellar medium of the Milky Way?",knowledge seeking: broad description,knowledge seeking: broad description,0,0,0.5,0,0.5,0,0,0,0
-1717173795,<@U07524ZQSD8> what is a good tracer of metallicity on the spectrum of an exoplanet?,knowledge seeking: broad description,knowledge seeking: broad description,0,0,0.5,0,0.5,0,0,0,0
+1717170554,"What creates linear sturcture in the difffuse, high-latitude, atomic interstellar medium of the Milky Way?",knowledge seeking: broad description/common sense,knowledge seeking: broad description/common sense,0,0,0.5,0,0.5,0,0,0,0
+1717173795,<@U07524ZQSD8> what is a good tracer of metallicity on the spectrum of an exoplanet?,knowledge seeking: broad description/common sense,knowledge seeking: broad description/common sense,0,0,0.5,0,0.5,0,0,0,0
 1717173927,<@U07524ZQSD8> why is the C/O ratio so important on exoplanet atmospheres?,knowledge seeking: broad description/common sense,,0.25,0,0.75,0,0,0,0,0,0
 1717174436,Can you answer any questions about weather?,bot capabilities,,0,0,0,0,0,0,0,0.75,0.25
 1717174455,Can you tell me about black hole weather?,knowledge seeking: broad description/common sense,,0,0,0.5,0,0,0,0.25,0.25,0
@@ -267,7 +267,6 @@ thread_ts,full_user_query,Open Coding,FINAL CODE,deep knowledge (including opini
 1718030566,<@U07524ZQSD8> Please list the most recent papers on multiple populations in Globular clusters,bibliometric search: topic,,0,0,0,0,0,1,0,0,0
 1718032410,<@U07524ZQSD8> What is the most distant supernova you’re aware of?,knowledge seeking: specific factual,,0,0,0,0,1,0,0,0,0
 1718036898,<@U07524ZQSD8> What is the highest redshift supernova you're aware of?,knowledge seeking: specific factual,,0,0,0,0,1,0,0,0,0
-1718037621,<@U07524ZQSD8> what is an incomplete shock in the optical,ILL-DEFINED QUERY - DISCARD,ILL-DEFINED QUERY - DISCARD,0,0,0.333333333,0,0.333333333,0.333333333,0,0,0
 1718053237,<@U07524ZQSD8> can you convert between Mpc and distance modulus for me?,bot capabilities,,0,0,0,0,0,0,0,1,0
 1718055029,"<@U07524ZQSD8>, what's the distance to TRAPPIST-1?",knowledge seeking: specific factual,,0,0,0,0,1,0,0,0,0
 1718055864,<@U07524ZQSD8> What is the distance to TRAPPIST-1?,knowledge seeking: specific factual,,0,0,0,0,1,0,0,0,0
@@ -295,7 +294,7 @@ thread_ts,full_user_query,Open Coding,FINAL CODE,deep knowledge (including opini
 1718233116,<@U07524ZQSD8> what do studies of the UV/Halpha ratio in higher redshift galaxies conclude?,deep knowledge (including opinion or speculation),,0.666666667,0,0.333333333,0,0,0,0,0,0
 1718233179,<@U07524ZQSD8> what are the tracers of burstiness in galaxies,knowledge seeking: broad description/common sense,,0,0,0.666666667,0,0,0,0.333333333,0,0
 1718233299,<@U07524ZQSD8> what do we know about the timescale of embedded star formation,knowledge seeking: specific factual,knowledge seeking: specific factual,0.333333333,0,0.333333333,0,0.333333333,0,0,0,0
-1718233490,<@U07524ZQSD8> what do we know about the timescale of embedded star formation from studies of the milky way,Knowledge seeking: specific factual,Knowledge seeking: specific factual,0.333333333,0,0.333333333,0,0.333333333,0,0,0,0
+1718233490,<@U07524ZQSD8> what do we know about the timescale of embedded star formation from studies of the milky way,knowledge seeking: specific factual,knowledge seeking: specific factual,0.333333333,0,0.333333333,0,0.333333333,0,0,0,0
 1718271949,<@U07524ZQSD8> what is the most studied AGN?,deep knowledge (including opinion or speculation),,0.666666667,0,0,0,0.333333333,0,0,0,0
 1718272013,<@U07524ZQSD8> Are high redshift QSO different from low redshift ones?,knowledge seeking: broad description/common sense,,0.333333333,0,0.666666667,0,0,0,0,0,0
 1718272064,<@U07524ZQSD8> How are black hole masses in QSOs estimated?,knowledge seeking: procedure,,0,0,0,1,0,0,0,0,0
@@ -341,7 +340,7 @@ thread_ts,full_user_query,Open Coding,FINAL CODE,deep knowledge (including opini
 1718385378,<@U07524ZQSD8> What is a crystal lattice?,knowledge seeking: broad description/common sense,,0,0,1,0,0,0,0,0,0
 1718385389,<@U07524ZQSD8> What are the reactants and products in the combustion of methane?,knowledge seeking: specific factual,,0,0,0.333333333,0,0.666666667,0,0,0,0
 1718385396,<@U07524ZQSD8> What are the main components of the CRISPR-Cas9 system and their functions?,knowledge seeking: specific factual,,0,0,0,0,0.666666667,0,0,0,0.333333333
-1718385433,<@U07524ZQSD8> What is 74 times 21.2?,Bot capabilities,Bot capabilities,0,0,0,0,0.333333333,0,0,0.333333333,0.333333333
+1718385433,<@U07524ZQSD8> What is 74 times 21.2?,bot capabilities,bot capabilities,0,0,0,0,0.333333333,0,0,0.333333333,0.333333333
 1718385440,"<@U07524ZQSD8> If a star is 10 solar masses at birth, how is it most likely to end its life?",deep knowledge (including opinion or speculation),,0.666666667,0,0,0,0.333333333,0,0,0,0
 1718385463,<@U07524ZQSD8> Provide a template for an acknowledgments section for a scientific paper.,knowledge seeking: procedure,,0,0,0,0.666666667,0,0,0,0.333333333,0
 1718385487,<@U07524ZQSD8> What is the best title for a scientific paper that describes the discovery of an Earth-like exoplanet in the habitable zone of its host star?,deep knowledge (including opinion or speculation),,0.666666667,0,0,0,0,0,0,0.333333333,0
