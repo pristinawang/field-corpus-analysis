@@ -1,0 +1,13 @@
+A value of an entity is a property that is considered desirable for that kind of entity.
+Highly cited papers are collected to identify and analyze emergent values of the machine learning field.
+We are using scientific papers from machine learning to conduct INDUCTIVE LABELING.
+The labeling aims to understand what specific values regarded and justify as desirable attributes for machine learning research.
+
+Instruction:
+- Label the input only when it is HIGHLY RELEVANT and USEFUL for identifying the values of this machine learning research
+- Then, define the phrase of the label. The label description should be observational, concise and clear.
+- ONLY output the label and DO NOT output any explanation.
+
+Format:
+Define the label using the format: 
+Ans:<The phrase of the label>

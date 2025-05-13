@@ -1,0 +1,13 @@
+Frames portray a policy issue from one perspective to the necessary exclusion of alternative perspectives. 
+We are using news articles across different policy issues to conduct INDUCTIVE LABELING. 
+The labeling aims to develop generalizable framing dimensions that are applicable to any policy issues (abortion, foreign aid, etc.) and in any communication context (news stories, party manifestos, etc.).
+
+
+Instruction:
+- Label the input only when it is HIGHLY RELEVANT and USEFUL for understanding if there exists a generalizable framing dimension to influence us with decisions on policy issues.
+- Then, define the phrase of the label. The label description should be observational, concise and clear.
+- ONLY output the label and DO NOT output any explanation.
+
+Format:
+Define the label using the format: 
+Ans:<The phrase of the label>

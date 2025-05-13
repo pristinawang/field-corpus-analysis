@@ -154,6 +154,40 @@ class IterCoder:
         system_prompt = f"""
         Synthesize the entire list of labels by clustering similar labels that are inductively labeled. 
         The clustering is to finalize MEANINGFUL and INSIGHTFUL THEMES for {goal}
+        You will be provided with an existing codebook. Now you need to cluster the codes into clusters and provide one higher level code for each cluster of codes.
+
+        Guidelines for Clustering:
+        - Analyze existing codes and their corresponding segments and cluster the existing codes into clusters with corresponding higher level codes representing the whole cluster.
+
+        The existing codebook will be provided as input following this example below:
+        1. <code1>
+
+        -> <segment labeled with code1>
+
+        2. <code2>
+
+        -> <segment labeled with code2>
+
+        ...
+
+        n. <codeN>
+
+        -> <segment labeled with codeN>
+
+        Provide your answers following this output format example below:
+        Ans:
+        {{
+        "clusters": [
+            {{
+            "high_level_code": "Cyber Harassment",
+            "original_codes": ["Online Harassment", "Cyberbullying"],
+            "justification": "Both refer to aggressive online behavior; Cyberbullying is a subset but can be generalized."
+            }}
+        ]
+        }}
+
+        When no clustering is needed, answer N/A and provide your answer following this output format below:
+        Ans: N/A
         """ 
 
         return system_prompt
@@ -382,7 +416,7 @@ class IterCoder:
         return frame_segs_dict
     
     @save_results
-    def generate_initial_codebook(self, debug, iter_num=0, prompt_path='first_batch_prompt.txt'):
+    def generate_initial_codebook(self, debug, iter_num=0, prompt_path='generate_prompt.txt'):
         prompt_path=os.path.join(self.prompt_dir, prompt_path)
         segments, segment_ids =self.get_segments(self.num_seg_first_batch)
         sys_prompt=txt_to_string(prompt_path)
@@ -661,14 +695,13 @@ class IterCoder:
         print('Num of codes dropped', len(to_be_dropped))
 
     @save_results
-    def merge(self, debug, iter_num, prompt_path='merge_prompt_seg.txt'):
+    def merge(self, debug, iter_num):
         '''
         iter_num: int
         merge() clusters original_codes into high_level_code
         '''
-        prompt_path=os.path.join(self.prompt_dir, prompt_path)
         merge_log=''
-        sys_prompt=self.clustering_system_prompt()+txt_to_string(prompt_path)
+        sys_prompt=self.clustering_system_prompt()
         user_prompt=self.flatten_dict(dict=self.codebook_dict)
         # if seg_bool:full_prompt=prompt+'\n'+self.flatten_dict(dict=self.codebook_dict)
         # else: raise ValueError("segment should be provided when clustering") #full_prompt=prompt+self.flatten(list=self.codebook)
@@ -779,7 +812,7 @@ class IterCoder:
         if len(segments)>0: print('⚠️', len(segments),'of segments failed to be assigned labels')
                 
     @save_results 
-    def update_codebook(self, iter_num, verbose, prompt_path='update_codebook_prompt.txt'):
+    def update_codebook(self, iter_num, verbose, prompt_path='generate_prompt.txt'):
         '''
         iter_num: int
         '''
@@ -990,26 +1023,35 @@ def main():
     print('--------job_id: output path-------')
     print('./out/'+job_id+'/')
     print('--------------------------------')
-    ## Embedding Model
-    embedding_model_id='all-MiniLM-L6-v2'
-    embedding_model = SentenceTransformer(embedding_model_id).to('cuda')
     
     # Config
-    purpose='itercoder'
-    metrics_bool=True
-    data_type='media'
+    purpose='explore'
+    metrics_bool=False
+    data_type='val_e'
+    data_size='all'
+    
+    
+    ## Embedding Model
+    if not(purpose=='explore'):
+        embedding_model_id='all-MiniLM-L6-v2'
+        embedding_model = SentenceTransformer(embedding_model_id).to('cuda')
+    else: embedding_model=None
+    
     
     # Iterative Coding
     gold_frame_dict, gold_frame_arid_dict, article_dict=get_data_and_labels(data_type=data_type)
-    small_dataset=dict(list(article_dict.items())[:10])
+    small_dataset=dict(list(article_dict.items())[:100])
     all_dataset=dict(list(article_dict.items()))
+    if data_size=='small': dataset=small_dataset
+    elif data_size=='all': dataset=all_dataset
+    else: raise ValueError("data_size not supported")
     print('-------Double Check Input data info----------')
     print('Num of articles:', len(list(article_dict.keys())))
-    itercoder=IterCoder(job_id=job_id, data_type=data_type, purpose=purpose, dataset=all_dataset, gold_frame_dict=gold_frame_dict, gold_frame_arid_dict=gold_frame_arid_dict,embedding_model=embedding_model, output_dir='./out',
+    itercoder=IterCoder(job_id=job_id, data_type=data_type, purpose=purpose, dataset=dataset, gold_frame_dict=gold_frame_dict, gold_frame_arid_dict=gold_frame_arid_dict,embedding_model=embedding_model, output_dir='./out',
                             num_seg_first_batch=32, batch_size=48, stop_thresh=0, delimiter='.\n\n', update_gold_thresh=3,update_num=10, metrics_bool=metrics_bool)
     itercoder.run(verbose=False)
     
     
 if __name__=='__main__':
-    for i in range(3):
+    for i in range(5):
         main()
