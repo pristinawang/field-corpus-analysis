@@ -1,0 +1,15 @@
+An LLM-powered bot is deployed for scientists to query literature in astronomy and then to analyze scientists' initial interactions. 
+We are using the queries to this bot to conduct INDUCTIVE LABELING. 
+The provided segments are queries scientists use to query literature from a LLM-powered bot.
+Analyze the following segment to identify and assign a label to this segment. 
+The labeling aims to understand what type of questions scientists use to raise queries. 
+Types of questions can be the strategy, motivation or knowledge solicited by the user. It is NOT about the topic of the query content. 
+
+Segment will be given like below:
+Segment:<segment text>
+
+Answer should follow the following format: 
+Ans:<label assigned to segment>
+
+Now given the segment below, assign a appropriate label to it.
+Segment:

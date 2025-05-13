@@ -98,7 +98,7 @@ def generate_responses_batch(prompts, sys_prompt=None):
 
     return responses
 
-def generate_response_single(prompt, sys_prompt):
+def generate_response_single(prompt, sys_prompt=None):
     client = OpenAI()
     if sys_prompt is None: sys_prompt="You are a helpful assistant."
     

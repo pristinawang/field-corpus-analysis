@@ -1,10 +1,13 @@
-Your task is to determine how the following segment portrays an issue from a specific perspective, often emphasizing certain viewpoints while excluding alternative perspectives. This is a key aspect of political communication.
-Analyze the following segment from an article to assign the best low frame that capture the low level framing nuances of the given segment. Directly answer with the name of the frame.
+Query type refers to the strategy, motivation or knowledge solicited by the user. It is NOT about the topic of the query content. 
+An LLM-powered bot is deployed for scientists to query literature in astronomy and then to analyze scientists' initial interactions. 
+We are using the queries to this bot to conduct INDUCTIVE LABELING. 
+The labeling aims to understand what type of questions scientists use to raise queries 
 
-Segment will be given like below:
-Segment:<segment text>
+Instruction:
+- Label the input only when it is HIGHLY RELEVANT and USEFUL for understanding the query type to the literature search bot from the astronomy scientists.
+- Then, define the phrase of the label. The label description should be observational, concise and clear.
+- ONLY output the label and DO NOT output any explanation.
 
-Provide your answers following this output format example below:
-Ans: Cyber Harassment
-
-Now given the segment below, assign the best frame for this segment and provide your answer following the format given above.
+Format:
+Define the label using the format: 
+Ans:<The phrase of the label>

@@ -1,9 +1,11 @@
+You are an expert in qualitative coding and inductive coding analysis.
 You will be provided with an existing codebook. Now you need to cluster the codes into clusters and provide one higher level code for each cluster of codes.
 
 Guidelines for Clustering:
 - Analyze existing codes and their corresponding segments and cluster the existing codes into clusters with corresponding higher level codes representing the whole cluster.
 
-The existing codebook will be provided as input following this example below:
+The existing codebook will be provided following this example below:
+Codebook: 
 1. <code1>
 
 -> <segment labeled with code1>
@@ -32,3 +34,6 @@ Ans:
 
 When no clustering is needed, answer N/A and provide your answer following this output format below:
 Ans: N/A
+
+Now, given the existing codes and their corresponding segments in the existing codebook below, perform clustering. Provide your answers following the output format above.
+Codebook:

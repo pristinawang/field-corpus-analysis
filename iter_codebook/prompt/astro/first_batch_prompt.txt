@@ -1,15 +1,13 @@
+Query type refers to the strategy, motivation or knowledge solicited by the user. It is NOT about the topic of the query content. 
 An LLM-powered bot is deployed for scientists to query literature in astronomy and then to analyze scientists' initial interactions. 
 We are using the queries to this bot to conduct INDUCTIVE LABELING. 
-The provided segments are queries scientists use to query literature from a LLM-powered bot.
-Analyze the following segment to identify and assign a label to this segment. 
-The labeling aims to understand what type of questions scientists use to raise queries. 
-Types of questions can be the strategy, motivation or knowledge solicited by the user. It is NOT about the topic of the query content. 
+The labeling aims to understand what type of questions scientists use to raise queries 
 
-Segment will be given like below:
-Segment:<segment text>
+Instruction:
+- Label the input only when it is HIGHLY RELEVANT and USEFUL for understanding the query type to the literature search bot from the astronomy scientists.
+- Then, define the phrase of the label. The label description should be observational, concise and clear.
+- ONLY output the label and DO NOT output any explanation.
 
-Answer should follow the following format: 
-Ans:<label assigned to segment>
-
-Now given the segment below, assign a appropriate label to it.
-Segment:
+Format:
+Define the label using the format: 
+Ans:<The phrase of the label>

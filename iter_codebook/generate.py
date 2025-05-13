@@ -154,8 +154,6 @@ class IterCoder:
         system_prompt = f"""
         Synthesize the entire list of labels by clustering similar labels that are inductively labeled. 
         The clustering is to finalize MEANINGFUL and INSIGHTFUL THEMES for {goal}
-        Output in json format where the key is the cluster, and the value is the list of input labels in that cluster. 
-        For each cluster, the value should only take labels from the user input.
         """ 
 
         return system_prompt
@@ -387,9 +385,9 @@ class IterCoder:
     def generate_initial_codebook(self, debug, iter_num=0, prompt_path='first_batch_prompt.txt'):
         prompt_path=os.path.join(self.prompt_dir, prompt_path)
         segments, segment_ids =self.get_segments(self.num_seg_first_batch)
-        prompt=txt_to_string(prompt_path)
-        full_prompts = list(map(lambda s: prompt + s, segments))
-        generated_texts=generate_responses_batch(full_prompts)
+        sys_prompt=txt_to_string(prompt_path)
+        #full_prompts = list(map(lambda s: prompt + s, segments))
+        generated_texts=generate_responses_batch(prompts=segments, sys_prompt=sys_prompt)
         if debug:
             print('----OG text-----')
             print(generated_texts)
@@ -663,20 +661,21 @@ class IterCoder:
         print('Num of codes dropped', len(to_be_dropped))
 
     @save_results
-    def merge(self, debug, iter_num, seg_bool, prompt_path='merge_prompt_seg.txt'):
+    def merge(self, debug, iter_num, prompt_path='merge_prompt_seg.txt'):
         '''
         iter_num: int
         merge() clusters original_codes into high_level_code
         '''
         prompt_path=os.path.join(self.prompt_dir, prompt_path)
         merge_log=''
-        prompt=txt_to_string(prompt_path)
-        if seg_bool:full_prompt=prompt+'\n'+self.flatten_dict(dict=self.codebook_dict)
-        else: full_prompt=prompt+self.flatten(list=self.codebook)
+        sys_prompt=self.clustering_system_prompt()+txt_to_string(prompt_path)
+        user_prompt=self.flatten_dict(dict=self.codebook_dict)
+        # if seg_bool:full_prompt=prompt+'\n'+self.flatten_dict(dict=self.codebook_dict)
+        # else: raise ValueError("segment should be provided when clustering") #full_prompt=prompt+self.flatten(list=self.codebook)
         if debug:
             print('----full prompt-----')
             print(full_prompt)
-        generated_text=generate_response_single(prompt=full_prompt)
+        generated_text=generate_response_single(prompt=user_prompt, sys_prompt=sys_prompt)
         if debug:
             print('---Merge gen txt----')
             print(generated_text)
@@ -780,10 +779,9 @@ class IterCoder:
         if len(segments)>0: print('⚠️', len(segments),'of segments failed to be assigned labels')
                 
     @save_results 
-    def update_codebook(self, iter_num, codebook_bool, verbose, prompt_path='update_codebook_prompt.txt'):
+    def update_codebook(self, iter_num, verbose, prompt_path='update_codebook_prompt.txt'):
         '''
         iter_num: int
-        codebook_bool: including codebook in prompt or not
         '''
         prompt_path=os.path.join(self.prompt_dir, prompt_path)
         if self.batch_size > len(self.remaining_seg_ids): return
@@ -791,13 +789,11 @@ class IterCoder:
         
         update_log=''
         segments, segment_ids = self.get_segments(n=self.batch_size)
-        prompt=txt_to_string(prompt_path)
+        sys_prompt=txt_to_string(prompt_path)
         for i, segment in enumerate(segments):
             segment_id=segment_ids[i]
-            codebook_str=self.flatten(list=self.codebook)
-            if codebook_bool: full_prompt=prompt+codebook_str+'\n\nSegment: '+segment
-            else: full_prompt=prompt+'\n\nSegment: '+segment
-            generated_text=generate_response_single(prompt=full_prompt)
+            user_prompt = segment
+            generated_text=generate_response_single(prompt=user_prompt, sys_prompt=sys_prompt)
             try:
                 label=self.get_pure_ans(text=generated_text)
             except:
@@ -943,7 +939,7 @@ class IterCoder:
         # print('---------Merge no seg-------------')
         # self.merge(round_log='Round #1', seg_bool=False)
         
-        self.merge(iter_num=0,debug=False, seg_bool=True, prompt_path='merge_prompt_seg.txt')
+        self.merge(iter_num=0,debug=False)
         if verbose:
             print('---------Merge with seg----------')
             print('----merge log------')
@@ -956,7 +952,7 @@ class IterCoder:
         for iter_num in self.iteration_progress:
             #if iter_num <= self.update_loop_num:
             if self.updating_condition(iter_num=iter_num):
-                self.update_codebook(iter_num=iter_num, codebook_bool=False, verbose=True)
+                self.update_codebook(iter_num=iter_num, verbose=True)
                 if verbose:
                     print('-------#'+str(iter_num)+' Updated Codebook---------')
                     print(self.flatten_dict(dict=self.codebook_dict))
@@ -968,7 +964,7 @@ class IterCoder:
             # print('#'+str(iter_num),self.deduplication_error_log[iter_num])
             # print('---New Codebook after Dupl----')
             # print(self.flatten_dict(dict=self.codebook_dict))
-            self.merge(iter_num=iter_num, debug=False, seg_bool=True, prompt_path='merge_prompt_seg.txt')
+            self.merge(iter_num=iter_num, debug=False)
             if verbose:
                 print('----#'+str(iter_num)+' merge log------')
                 print('#'+str(iter_num),self.merge_error_log[iter_num])
@@ -999,9 +995,9 @@ def main():
     embedding_model = SentenceTransformer(embedding_model_id).to('cuda')
     
     # Config
-    purpose='explore'
-    metrics_bool=False
-    data_type='acl'
+    purpose='itercoder'
+    metrics_bool=True
+    data_type='media'
     
     # Iterative Coding
     gold_frame_dict, gold_frame_arid_dict, article_dict=get_data_and_labels(data_type=data_type)
@@ -1015,4 +1011,5 @@ def main():
     
     
 if __name__=='__main__':
-    main()
+    for i in range(3):
+        main()
