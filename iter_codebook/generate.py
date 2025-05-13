@@ -237,7 +237,7 @@ class IterCoder:
         full_annotation_file_path = os.path.join(dir_path, f'full_annotation_{self.job_id}.json')
         
         self.output_annotations(codebook_to_be_output=self.codebook_dict, dir_path=dir_path, result_file_path=annotation_file_path)
-        if not(self.purpose=='explore'): 
+        if not(self.purpose=='explore') and self.metrics_bool: 
             plot_stats(dir_path=dir_path, csv_path=stats_file_name)
             plot_cossim_matrix_frames(image_path=confusion_matrix_path, gold_frames=list(self.gold_frame_dict.keys()), hat_frames=list(self.codebook_dict.keys()), embedding_model=self.embedding_model)
             hat_frame_article_dict=self.get_hat_frame_article_id_dict()
@@ -1025,14 +1025,14 @@ def main():
     print('--------------------------------')
     
     # Config
-    purpose='explore'
+    purpose='itercoder'
     metrics_bool=False
     data_type='val_e'
     data_size='all'
     
     
     ## Embedding Model
-    if not(purpose=='explore'):
+    if metrics_bool:
         embedding_model_id='all-MiniLM-L6-v2'
         embedding_model = SentenceTransformer(embedding_model_id).to('cuda')
     else: embedding_model=None
